@@ -1,4 +1,3 @@
-import React from 'react';
 import { SermonAnalyzer } from '../components/SermonAnalyzer';
 
 export default function SermonAnalyzerPage() {

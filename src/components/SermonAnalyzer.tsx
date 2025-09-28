@@ -76,6 +76,10 @@ export const SermonAnalyzer: React.FC<SermonAnalyzerProps> = ({ className = '' }
     setResults(null);
 
     try {
+      if (!supabase) {
+        throw new Error('Supabase client not initialized');
+      }
+
       const { data, error: functionError } = await supabase.functions.invoke('improve-sermon', {
         body: {
           sermonText: sermonText.trim(),
