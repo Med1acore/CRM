@@ -4,7 +4,8 @@ import path from 'path'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/crm/',
+  // ИЗМЕНЕНИЕ БЫЛО ЗДЕСЬ: Указываем правильное имя репозитория
+  base: '/CRMCHURCH/',
   server: {
     port: 5177,
     open: true,
