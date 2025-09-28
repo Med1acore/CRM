@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { Database } from '../lib/supabase'
 
@@ -23,7 +23,7 @@ export function SupabaseTest() {
 
     try {
       // Простая проверка подключения
-      const { data, error } = await supabase.from('users').select('count').limit(1)
+      const { error } = await supabase.from('users').select('count').limit(1)
       
       if (error) {
         setConnectionStatus('disconnected')
