@@ -11,6 +11,7 @@ import {
   Sun,
   Moon,
   CheckSquare,
+  Brain,
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useTheme } from '../../components/ThemeProvider'
@@ -23,6 +24,7 @@ const navigation = [
   { name: 'Задачи', href: '/tasks', icon: CheckSquare },
   { name: 'Коммуникации', href: '/communications', icon: MessageSquare },
   { name: 'Аналитика', href: '/analytics', icon: BarChart3 },
+  { name: 'Улучшить проповедь', href: '/sermon-analyzer', icon: Brain },
 ]
 
 interface SidebarProps {

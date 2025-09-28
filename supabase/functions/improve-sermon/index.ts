@@ -1,0 +1,256 @@
+// Follow this setup guide to integrate the Deno language server with your editor:
+// https://deno.land/manual/getting_started/setup_your_environment
+// This enables autocomplete, go to definition, etc.
+
+// Setup type definitions for built-in Supabase Runtime APIs
+import "jsr:@supabase/functions-js/edge-runtime.d.ts"
+
+// Types for request and response
+interface SermonRequest {
+  sermonText: string;
+  roles: string[];
+}
+
+interface RoleAnalysis {
+  role: string;
+  feedback: string;
+  improvements: string;
+}
+
+// CORS headers
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+};
+
+// Handle preflight requests
+function handleCors(req: Request): Response | null {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
+  }
+  return null;
+}
+
+// Create error response
+function createErrorResponse(message: string, status: number): Response {
+  return new Response(
+    JSON.stringify({ error: message }),
+    { 
+      status,
+      headers: { 
+        ...corsHeaders,
+        'Content-Type': 'application/json' 
+      }
+    }
+  );
+}
+
+// Create success response
+function createSuccessResponse(data: any): Response {
+  return new Response(
+    JSON.stringify(data),
+    { 
+      status: 200,
+      headers: { 
+        ...corsHeaders,
+        'Content-Type': 'application/json' 
+      }
+    }
+  );
+}
+
+// Validate request body
+function validateRequest(body: any): SermonRequest | null {
+  if (!body || typeof body !== 'object') {
+    return null;
+  }
+  
+  if (!body.sermonText || typeof body.sermonText !== 'string') {
+    return null;
+  }
+  
+  if (!body.roles || !Array.isArray(body.roles) || body.roles.length === 0) {
+    return null;
+  }
+  
+  if (!body.roles.every((role: any) => typeof role === 'string')) {
+    return null;
+  }
+  
+  return body as SermonRequest;
+}
+
+// Call Google AI API (Gemini)
+async function callGoogleAI(sermonText: string, roles: string[]): Promise<RoleAnalysis[]> {
+  const apiKey = Deno.env.get('GOOGLE_AI_API_KEY');
+  
+  if (!apiKey) {
+    throw new Error('Google AI API key not found in environment variables');
+  }
+
+  // Create the prompt
+  const rolesText = roles.map(role => `- ${role}`).join('\n');
+  const prompt = `Ты — консилиум экспертов, анализирующих текст христианской проповеди. Твоя задача — дать обратную связь от лица нескольких ролей, чтобы помочь автору улучшить текст.
+
+Вот текст проповеди для анализа:
+"${sermonText}"
+
+Проанализируй этот текст с точки зрения следующих ролей:
+${rolesText}
+
+Для каждой роли предоставь четкий ответ в двух частях: 1. Фидбэк: Оцени сильные и слабые стороны. 2. Улучшения: Дай конкретные, практические предложения.
+
+Отформатируй свой ответ в виде валидного JSON-массива, где каждый объект представляет одну роль и имеет поля "role", "feedback", и "improvements".`;
+
+  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      contents: [
+        {
+          parts: [
+            {
+              text: prompt
+            }
+          ]
+        }
+      ],
+      generationConfig: {
+        temperature: 0.7,
+        maxOutputTokens: 4000,
+        topP: 0.8,
+        topK: 10
+      }
+    }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.text();
+    throw new Error(`Google AI API error: ${response.status} - ${errorData}`);
+  }
+
+  const data = await response.json();
+  
+  if (!data.candidates || !data.candidates[0] || !data.candidates[0].content || !data.candidates[0].content.parts) {
+    throw new Error('Invalid response from Google AI API');
+  }
+
+  const content = data.candidates[0].content.parts[0].text;
+  
+  try {
+    // Try to parse the JSON response
+    const parsed = JSON.parse(content);
+    
+    // Validate the structure
+    if (!Array.isArray(parsed)) {
+      throw new Error('Response is not an array');
+    }
+    
+    // Validate each role analysis
+    for (const item of parsed) {
+      if (!item.role || !item.feedback || !item.improvements) {
+        throw new Error('Invalid role analysis structure');
+      }
+    }
+    
+    return parsed as RoleAnalysis[];
+  } catch (parseError) {
+    // If JSON parsing fails, try to extract JSON from the response
+    const jsonMatch = content.match(/\[[\s\S]*\]/);
+    if (jsonMatch) {
+      try {
+        const parsed = JSON.parse(jsonMatch[0]);
+        return parsed as RoleAnalysis[];
+      } catch (e) {
+        throw new Error('Failed to parse JSON from Google AI response');
+      }
+    }
+    throw new Error('No valid JSON found in Google AI response');
+  }
+}
+
+Deno.serve(async (req) => {
+  // Handle CORS preflight
+  const corsResponse = handleCors(req);
+  if (corsResponse) {
+    return corsResponse;
+  }
+
+  try {
+    // Only allow POST requests
+    if (req.method !== 'POST') {
+      return createErrorResponse('Method not allowed. Use POST.', 405);
+    }
+
+    // Parse request body
+    let body;
+    try {
+      body = await req.json();
+    } catch (error) {
+      return createErrorResponse('Invalid JSON in request body', 400);
+    }
+
+    // Validate request
+    const validatedRequest = validateRequest(body);
+    if (!validatedRequest) {
+      return createErrorResponse(
+        'Invalid request. Expected: { "sermonText": "string", "roles": ["string", ...] }', 
+        400
+      );
+    }
+
+    // Check if sermon text is not empty
+    if (validatedRequest.sermonText.trim().length === 0) {
+      return createErrorResponse('Sermon text cannot be empty', 400);
+    }
+
+    // Check if roles array is not empty
+    if (validatedRequest.roles.length === 0) {
+      return createErrorResponse('At least one role must be provided', 400);
+    }
+
+    // Call Google AI API
+    const analysis = await callGoogleAI(validatedRequest.sermonText, validatedRequest.roles);
+    
+    // Return the analysis
+    return createSuccessResponse(analysis);
+
+  } catch (error) {
+    console.error('Error in improve-sermon function:', error);
+    
+    // Handle specific error types
+    if (error.message.includes('Google AI API key not found')) {
+      return createErrorResponse('Google AI API key not configured', 500);
+    }
+    
+    if (error.message.includes('Google AI API error')) {
+      return createErrorResponse('Google AI API error: ' + error.message, 502);
+    }
+    
+    if (error.message.includes('Failed to parse JSON')) {
+      return createErrorResponse('Failed to parse Google AI response', 502);
+    }
+    
+    // Generic error
+    return createErrorResponse('Internal server error', 500);
+  }
+});
+
+/* To invoke locally:
+
+  1. Run `supabase start` (see: https://supabase.com/docs/reference/cli/supabase-start)
+  2. Set your Google AI API key: `supabase secrets set GOOGLE_AI_API_KEY=your_key_here`
+  3. Make an HTTP request:
+
+  curl -i --location --request POST 'http://127.0.0.1:54321/functions/v1/improve-sermon' \
+    --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0' \
+    --header 'Content-Type: application/json' \
+    --data '{
+      "sermonText": "Сегодня мы поговорим о важности веры в нашей жизни...",
+      "roles": ["Богослов", "Пастор", "Прихожанин"]
+    }'
+
+*/

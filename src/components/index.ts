@@ -10,6 +10,7 @@ export { PersonCard } from './PersonCard'
 export { ViewToggle } from './ViewToggle'
 export { SmartSearchBar } from './SmartSearchBar'
 export { RadioPlayer } from './RadioPlayer'
+export { SermonAnalyzer } from './SermonAnalyzer'
 
 // Modal components
 export * from './modals'
