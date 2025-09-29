@@ -12,6 +12,7 @@ import Test from './pages/Test'
 import { TasksLobbyPage } from './pages/TasksLobbyPage'
 import { BoardPage } from './pages/BoardPage'
 import SermonAnalyzerPage from './pages/SermonAnalyzerPage'
+import CalendarComponent from './components/Calendar/CalendarComponent'
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
               <Route path="communications" element={<Communications />} />
               <Route path="analytics" element={<Analytics />} />
               <Route path="sermon-analyzer" element={<SermonAnalyzerPage />} />
+              <Route path="calendar" element={<CalendarComponent />} />
               <Route path="*" element={<Dashboard />} />
             </Route>
         </Routes>
