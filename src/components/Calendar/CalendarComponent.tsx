@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 // Импортируем сам календарь и его обязательные стили.
 // Это ключевые строки для его работы.
@@ -38,7 +38,7 @@ const initialEvents = [
     isDraggable: true,
     isReadOnly: false, // убедимся, что можно редактировать
   },
-] as const
+]
 
 // Помощник для форматирования даты
 const getFormattedDateRange = (date: Date) => {
@@ -106,12 +106,12 @@ const CalendarComponent = () => {
       updateDateRange() // Устанавливаем заголовок с датой при первой загрузке
 
       // === ВАЖНЕЙШИЙ БЛОК ДЛЯ РАБОТЫ DRAG-N-DROP ===
-      calendar.on('beforeUpdateEvent', ({ event, changes }) => {
+      calendar.on('beforeUpdateEvent', ({ event, changes }: any) => {
         // Явно применяем изменения, чтобы не зависать в полуперетаскивании
         calendar.updateEvent(event.id, event.calendarId, changes)
       })
 
-      calendar.on('beforeCreateEvent', (eventData) => {
+      calendar.on('beforeCreateEvent', (eventData: any) => {
         const newEvent = {
           id: String(Date.now()),
           calendarId: (eventData as any).calendarId || 'work',
