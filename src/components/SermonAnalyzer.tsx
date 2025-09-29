@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Brain, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Brain, Loader2, AlertCircle, CheckCircle2, Send, User, Bot } from 'lucide-react';
 
 // Types
 type AnalysisType = 'quick' | 'deep' | 'custom';
@@ -18,6 +18,16 @@ interface AnalysisResponse {
     limit: number;
     month: string;
   };
+}
+
+interface ChatMessage {
+  id: string;
+  type: 'user' | 'ai' | 'system';
+  content: string;
+  timestamp: Date;
+  role?: string;
+  feedback?: string;
+  improvements?: string;
 }
 
 interface SermonAnalyzerProps {
@@ -38,6 +48,32 @@ export const SermonAnalyzer: React.FC<SermonAnalyzerProps> = ({ className = '' }
   const [results, setResults] = useState<RoleAnalysis[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [usage, setUsage] = useState<{ current: number; limit: number; month: string } | null>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [isTyping, setIsTyping] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  // Add message to chat
+  const addMessage = (type: 'user' | 'ai' | 'system', content: string, role?: string, feedback?: string, improvements?: string) => {
+    const newMessage: ChatMessage = {
+      id: Date.now().toString(),
+      type,
+      content,
+      timestamp: new Date(),
+      role,
+      feedback,
+      improvements
+    };
+    setMessages(prev => [...prev, newMessage]);
+  };
 
   // Handle analysis type change
   const handleAnalysisTypeChange = (type: AnalysisType) => {
@@ -84,12 +120,19 @@ export const SermonAnalyzer: React.FC<SermonAnalyzerProps> = ({ className = '' }
     setIsLoading(true);
     setError(null);
     setResults(null);
+    setIsTyping(true);
+
+    // Add user message to chat
+    addMessage('user', `Проповедь для анализа (${selectedRoles.length} ролей):\n\n${sermonText.trim()}`);
 
     try {
       if (!supabase) {
         throw new Error('Supabase client not initialized');
       }
 
+      // Check if function is available
+      console.log('Attempting to call improve-sermon function...');
+      
       const { data, error: functionError } = await supabase.functions.invoke('improve-sermon', {
         body: {
           sermonText: sermonText.trim(),
@@ -106,17 +149,44 @@ export const SermonAnalyzer: React.FC<SermonAnalyzerProps> = ({ className = '' }
         const response = data as AnalysisResponse;
         setResults(response.analysis);
         setUsage(response.usage);
+        
+        // Add AI messages to chat
+        response.analysis.forEach((analysis, index) => {
+          setTimeout(() => {
+            addMessage('ai', `Анализ от ${analysis.role}`, analysis.role, analysis.feedback, analysis.improvements);
+          }, index * 1000); // Stagger messages for better UX
+        });
       } else if (Array.isArray(data)) {
         // Fallback for old format
         setResults(data);
+        data.forEach((analysis, index) => {
+          setTimeout(() => {
+            addMessage('ai', `Анализ от ${analysis.role}`, analysis.role, analysis.feedback, analysis.improvements);
+          }, index * 1000);
+        });
       } else {
         throw new Error('Неверный формат ответа от сервера');
       }
     } catch (err) {
       console.error('Analysis error:', err);
-      setError(err instanceof Error ? err.message : 'Произошла неизвестная ошибка');
+      
+      // More detailed error handling
+      if (err instanceof Error) {
+        if (err.message.includes('Failed to send a request to the Edge Function')) {
+          setError('Функция анализа недоступна. Проверьте подключение к интернету или обратитесь к администратору.');
+        } else if (err.message.includes('Превышен лимит')) {
+          setError(err.message);
+        } else if (err.message.includes('Google AI API')) {
+          setError('Ошибка AI сервиса. Попробуйте позже.');
+        } else {
+          setError(err.message);
+        }
+      } else {
+        setError('Произошла неизвестная ошибка');
+      }
     } finally {
       setIsLoading(false);
+      setIsTyping(false);
     }
   };
 
@@ -128,230 +198,263 @@ export const SermonAnalyzer: React.FC<SermonAnalyzerProps> = ({ className = '' }
     setResults(null);
     setError(null);
     setUsage(null);
+    setMessages([]);
   };
 
   return (
-    <div className={`space-y-6 ${className}`}>
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className="p-2 bg-blue-100 rounded-lg">
-          <Brain className="w-5 h-5 text-blue-600" />
+    <div className={`flex flex-col h-full max-h-[800px] ${className}`}>
+      {/* Chat Header - Telegram style */}
+      <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-t-lg">
+        <div className="p-2 bg-white/20 rounded-full">
+          <Brain className="w-5 h-5" />
         </div>
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">Улучшить проповедь</h3>
-          <p className="text-sm text-gray-500">AI-анализ с разных точек зрения</p>
+          <h3 className="text-lg font-semibold pt-sans-bold">Улучшить проповедь</h3>
+          <p className="text-sm text-blue-100 pt-sans-regular">AI-анализ с разных точек зрения</p>
+        </div>
+        <div className="ml-auto">
+          <div className="w-3 h-3 bg-green-400 rounded-full"></div>
         </div>
       </div>
 
-      {/* Usage Info */}
-      {usage && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-blue-800">
-              Использовано в {usage.month}: {usage.current}/{usage.limit}
-            </span>
-            <div className="flex space-x-1">
-              {Array.from({ length: usage.limit }, (_, i) => (
-                <div
-                  key={i}
-                  className={`w-2 h-2 rounded-full ${
-                    i < usage.current ? 'bg-blue-600' : 'bg-blue-200'
-                  }`}
-                />
-              ))}
+      {/* Chat Messages Area */}
+      <div className="flex-1 overflow-y-auto bg-gray-50 p-4 space-y-4 min-h-[300px]">
+        {messages.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-gray-500">
+            <Bot className="w-12 h-12 mb-4 text-gray-300" />
+            <p className="text-lg font-medium pt-sans-bold">Добро пожаловать!</p>
+            <p className="text-sm text-center max-w-sm pt-sans-regular">
+              Загрузите текст вашей проповеди и выберите роли для анализа. 
+              AI поможет улучшить вашу проповедь с разных точек зрения.
+            </p>
+          </div>
+        ) : (
+          messages.map((message) => (
+            <div
+              key={message.id}
+              className={`flex gap-3 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
+              {message.type === 'ai' && (
+                <div className="flex-shrink-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                  <Bot className="w-4 h-4 text-white" />
+                </div>
+              )}
+              
+              <div
+                className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                  message.type === 'user'
+                    ? 'bg-blue-500 text-white rounded-br-md'
+                    : 'bg-white text-gray-800 rounded-bl-md shadow-sm border'
+                }`}
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  {message.type === 'user' ? (
+                    <User className="w-4 h-4" />
+                  ) : (
+                    <span className="text-xs font-medium text-blue-600 pt-sans-bold">{message.role}</span>
+                  )}
+                  <span className="text-xs opacity-70 pt-sans-regular">
+                    {message.timestamp.toLocaleTimeString('ru-RU', { 
+                      hour: '2-digit', 
+                      minute: '2-digit' 
+                    })}
+                  </span>
+                </div>
+                
+                <p className="text-sm whitespace-pre-wrap pt-sans-regular">{message.content}</p>
+                
+                {message.feedback && (
+                  <div className="mt-3 pt-3 border-t border-gray-200">
+                    <p className="text-xs font-medium text-gray-600 mb-1 pt-sans-bold">Фидбэк:</p>
+                    <p className="text-sm text-gray-700 pt-sans-regular">{message.feedback}</p>
+                  </div>
+                )}
+                
+                {message.improvements && (
+                  <div className="mt-2">
+                    <p className="text-xs font-medium text-gray-600 mb-1 pt-sans-bold">Улучшения:</p>
+                    <p className="text-sm text-gray-700 pt-sans-regular">{message.improvements}</p>
+                  </div>
+                )}
+              </div>
+              
+              {message.type === 'user' && (
+                <div className="flex-shrink-0 w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+                  <User className="w-4 h-4 text-gray-600" />
+                </div>
+              )}
+            </div>
+          ))
+        )}
+        
+        {/* Typing Indicator */}
+        {isTyping && (
+          <div className="flex gap-3 justify-start">
+            <div className="flex-shrink-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+              <Bot className="w-4 h-4 text-white" />
+            </div>
+            <div className="bg-white rounded-2xl rounded-bl-md px-4 py-3 shadow-sm border">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-500 pt-sans-regular">AI анализирует...</span>
+                <div className="flex space-x-1">
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input Area - Telegram style */}
+      <div className="bg-white border-t border-gray-200 p-4">
+        {/* Warning */}
+        <div className="mb-4 bg-amber-50 border border-amber-200 rounded-lg p-3">
+          <div className="flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="text-xs text-amber-700 pt-sans-regular">
+                <span className="pt-sans-bold">Важно:</span> Загружайте текст, когда он готов. 
+                Ограничение: <span className="pt-sans-bold">3 анализа в месяц</span>.
+              </p>
             </div>
           </div>
         </div>
-      )}
 
-      {/* Warning */}
-      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-        <div className="flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
-          <div>
-            <h4 className="text-sm font-medium text-amber-800">Важно!</h4>
-            <p className="text-sm text-amber-700 mt-1">
-              Загружайте текст вашей проповеди, когда уверены в том, что он готов. 
-              У вас есть ограничение: <strong>3 анализа в месяц</strong>. 
-              Используйте эту возможность мудро для финальной доработки ваших проповедей.
-            </p>
+        {/* Sermon Text Input */}
+        <div className="space-y-3">
+          <textarea
+            id="sermon-text"
+            value={sermonText}
+            onChange={(e) => setSermonText(e.target.value)}
+            placeholder="Введите текст проповеди для анализа..."
+            className="w-full h-24 px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-black placeholder-gray-500"
+            disabled={isLoading}
+          />
+          <div className="flex items-center justify-between text-xs text-gray-500">
+            <span className="pt-sans-regular">{sermonText.length} символов</span>
+            {usage && (
+              <span className="pt-sans-regular">Использовано: {usage.current}/{usage.limit}</span>
+            )}
           </div>
         </div>
-      </div>
 
-      {/* Sermon Text Input */}
-      <div className="space-y-2">
-        <label htmlFor="sermon-text" className="block text-sm font-medium text-gray-700">
-          Текст проповеди
-        </label>
-        <textarea
-          id="sermon-text"
-          value={sermonText}
-          onChange={(e) => setSermonText(e.target.value)}
-          placeholder="Введите текст проповеди для анализа..."
-          className="w-full h-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-black"
-          disabled={isLoading}
-        />
-        <p className="text-xs text-gray-500">
-          {sermonText.length} символов
-        </p>
-      </div>
-
-      {/* Analysis Type Selection */}
-      <div className="space-y-3">
-        <label className="block text-sm font-medium text-gray-700">
-          Тип анализа
-        </label>
-        <div className="space-y-2">
-          {[
-            { value: 'quick', label: 'Быстрый анализ', description: '3 основные роли' },
-            { value: 'deep', label: 'Глубокий анализ', description: '5 экспертных ролей' },
-            { value: 'custom', label: 'Свой набор', description: 'Выберите роли самостоятельно' }
-          ].map((option) => (
-            <label key={option.value} className="flex items-center space-x-3 cursor-pointer">
-              <input
-                type="radio"
-                name="analysis-type"
-                value={option.value}
-                checked={analysisType === option.value}
-                onChange={() => handleAnalysisTypeChange(option.value as AnalysisType)}
-                className="w-4 h-4 text-blue-600 focus:ring-blue-500"
-                disabled={isLoading}
-              />
-              <div>
-                <span className="text-sm font-medium text-gray-900">{option.label}</span>
-                <p className="text-xs text-gray-500">{option.description}</p>
-              </div>
-            </label>
-          ))}
-        </div>
-      </div>
-
-      {/* Custom Roles Selection */}
-      {analysisType === 'custom' && (
+        {/* Analysis Type Selection */}
         <div className="space-y-3">
-          <label className="block text-sm font-medium text-gray-700">
-            Выберите роли для анализа
+          <label className="block text-sm font-medium text-gray-700 pt-sans-bold">
+            Тип анализа
           </label>
-          <div className="grid grid-cols-2 gap-2">
-            {ALL_ROLES.map((role) => (
-              <label key={role} className="flex items-center space-x-2 cursor-pointer">
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { value: 'quick', label: 'Быстрый', description: '3 роли' },
+              { value: 'deep', label: 'Глубокий', description: '5 ролей' },
+              { value: 'custom', label: 'Свой', description: 'Выбор' }
+            ].map((option) => (
+              <label key={option.value} className="flex flex-col items-center p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
                 <input
-                  type="checkbox"
-                  checked={selectedRoles.includes(role)}
-                  onChange={() => handleRoleToggle(role)}
-                  className="w-4 h-4 text-blue-600 focus:ring-blue-500 rounded"
+                  type="radio"
+                  name="analysis-type"
+                  value={option.value}
+                  checked={analysisType === option.value}
+                  onChange={() => handleAnalysisTypeChange(option.value as AnalysisType)}
+                  className="sr-only"
                   disabled={isLoading}
                 />
-                <span className="text-sm text-gray-700">{role}</span>
+                <span className={`text-sm font-medium pt-sans-bold ${analysisType === option.value ? 'text-blue-600' : 'text-gray-700'}`}>
+                  {option.label}
+                </span>
+                <span className="text-xs text-gray-500 pt-sans-regular">{option.description}</span>
               </label>
             ))}
           </div>
-          {selectedRoles.length === 0 && (
-            <p className="text-xs text-red-500">Выберите хотя бы одну роль</p>
-          )}
         </div>
-      )}
 
-      {/* Selected Roles Display */}
-      {selectedRoles.length > 0 && (
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Выбранные роли ({selectedRoles.length})
-          </label>
-          <div className="flex flex-wrap gap-2">
-            {selectedRoles.map((role) => (
-              <span
-                key={role}
-                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
-              >
-                {role}
+        {/* Custom Roles Selection */}
+        {analysisType === 'custom' && (
+          <div className="space-y-3">
+            <label className="block text-sm font-medium text-gray-700 pt-sans-bold">
+              Выберите роли
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {ALL_ROLES.map((role) => (
+                <label key={role} className="flex items-center space-x-2 p-2 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+                  <input
+                    type="checkbox"
+                    checked={selectedRoles.includes(role)}
+                    onChange={() => handleRoleToggle(role)}
+                    className="w-4 h-4 text-blue-600 focus:ring-blue-500 rounded"
+                    disabled={isLoading}
+                  />
+                  <span className="text-sm text-gray-700 pt-sans-regular">{role}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Selected Roles Display */}
+        {selectedRoles.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-gray-700 pt-sans-bold">
+                Выбранные роли ({selectedRoles.length})
               </span>
-            ))}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {selectedRoles.map((role) => (
+                <span
+                  key={role}
+                  className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 pt-sans-regular"
+                >
+                  {role}
+                </span>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Action Buttons */}
-      <div className="flex gap-3">
-        <button
-          onClick={handleAnalyze}
-          disabled={isLoading || !sermonText.trim() || selectedRoles.length === 0}
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Улучшаем...
-            </>
-          ) : (
-            <>
-              <Brain className="w-4 h-4" />
-              Улучшить
-            </>
-          )}
-        </button>
-        
-        <button
-          onClick={handleReset}
-          disabled={isLoading}
-          className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          Сбросить
-        </button>
+        {/* Action Buttons */}
+        <div className="flex gap-3 pt-2">
+          <button
+            onClick={handleAnalyze}
+            disabled={isLoading || !sermonText.trim() || selectedRoles.length === 0}
+            className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-2xl hover:bg-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium pt-sans-bold"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span className="pt-sans-regular">Анализируем...</span>
+              </>
+            ) : (
+              <>
+                <Send className="w-4 h-4" />
+                <span className="pt-sans-bold">Отправить</span>
+              </>
+            )}
+          </button>
+          
+          <button
+            onClick={handleReset}
+            disabled={isLoading}
+            className="px-4 py-3 border border-gray-300 text-gray-700 rounded-2xl hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors pt-sans-regular"
+          >
+            Сбросить
+          </button>
+        </div>
       </div>
-
-      {/* Loading State */}
-      {isLoading && (
-        <div className="flex items-center justify-center py-8">
-          <div className="text-center">
-            <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-2" />
-            <p className="text-sm text-gray-600">Улучшаем проповедь...</p>
-            <p className="text-xs text-gray-500 mt-1">Это может занять несколько секунд</p>
-          </div>
-        </div>
-      )}
 
       {/* Error State */}
       {error && (
-        <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
-          <div>
-            <h4 className="text-sm font-medium text-red-800">Ошибка улучшения</h4>
-            <p className="text-sm text-red-700 mt-1">{error}</p>
-          </div>
-        </div>
-      )}
-
-      {/* Results */}
-      {results && results.length > 0 && (
-        <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <CheckCircle2 className="w-5 h-5 text-green-600" />
-          <h4 className="text-lg font-semibold text-gray-900">Результаты улучшения</h4>
-        </div>
-          
-          <div className="space-y-4">
-            {results.map((analysis, index) => (
-              <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                  <h5 className="font-medium text-gray-900">{analysis.role}</h5>
-                </div>
-                
-                <div className="space-y-3">
-                  <div>
-                    <h6 className="text-sm font-medium text-gray-700 mb-1">Фидбэк:</h6>
-                    <p className="text-sm text-gray-600 leading-relaxed">{analysis.feedback}</p>
-                  </div>
-                  
-                  <div>
-                    <h6 className="text-sm font-medium text-gray-700 mb-1">Предложения по улучшению:</h6>
-                    <p className="text-sm text-gray-600 leading-relaxed">{analysis.improvements}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
+        <div className="bg-red-50 border border-red-200 rounded-lg p-3 mx-4 mb-4">
+          <div className="flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
+            <div>
+              <h4 className="text-sm font-medium text-red-800 pt-sans-bold">Ошибка</h4>
+              <p className="text-sm text-red-700 mt-1 pt-sans-regular">{error}</p>
+            </div>
           </div>
         </div>
       )}
