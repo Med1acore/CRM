@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Brain, Loader2, AlertCircle, CheckCircle2, Send, User, Bot } from 'lucide-react';
+import { Brain, Loader2, AlertCircle, User, Bot } from 'lucide-react';
 
 // Footsteps icon component
 const FootstepsIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
@@ -52,7 +52,7 @@ export const SermonAnalyzer: React.FC<SermonAnalyzerProps> = ({ className = '' }
   const [analysisType, setAnalysisType] = useState<AnalysisType>('quick');
   const [selectedRoles, setSelectedRoles] = useState<string[]>(QUICK_ROLES);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [results, setResults] = useState<RoleAnalysis[] | null>(null);
+  // Результаты храним в сообщениях чата; отдельное состояние не требуется
   const [error, setError] = useState<string | null>(null);
   const [usage, setUsage] = useState<{ current: number; limit: number; month: string } | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -86,7 +86,7 @@ export const SermonAnalyzer: React.FC<SermonAnalyzerProps> = ({ className = '' }
   const handleAnalysisTypeChange = (type: AnalysisType) => {
     setAnalysisType(type);
     setError(null);
-    setResults(null);
+    // no-op
     
     switch (type) {
       case 'quick':
@@ -126,7 +126,7 @@ export const SermonAnalyzer: React.FC<SermonAnalyzerProps> = ({ className = '' }
 
     setIsLoading(true);
     setError(null);
-    setResults(null);
+    // no-op
     setIsTyping(true);
 
     // Add moderator message first
@@ -154,7 +154,7 @@ export const SermonAnalyzer: React.FC<SermonAnalyzerProps> = ({ className = '' }
       // Handle new response format with usage info
       if (data && typeof data === 'object' && 'analysis' in data) {
         const response = data as AnalysisResponse;
-        setResults(response.analysis);
+        // no-op: выводим напрямую в чат
         setUsage(response.usage);
         
         // Add AI messages to chat with staggered timing
@@ -165,7 +165,7 @@ export const SermonAnalyzer: React.FC<SermonAnalyzerProps> = ({ className = '' }
         });
       } else if (Array.isArray(data)) {
         // Fallback for old format
-        setResults(data);
+        // no-op: выводим напрямую в чат
         data.forEach((analysis, index) => {
           setTimeout(() => {
             addMessage('ai', `📝 Анализ завершен`, analysis.role, analysis.feedback, analysis.improvements);
@@ -198,15 +198,15 @@ export const SermonAnalyzer: React.FC<SermonAnalyzerProps> = ({ className = '' }
   };
 
   // Reset function
-  const handleReset = () => {
-    setSermonText('');
-    setAnalysisType('quick');
-    setSelectedRoles(QUICK_ROLES);
-    setResults(null);
-    setError(null);
-    setUsage(null);
-    setMessages([]);
-  };
+  // reset helper (не используется в текущем UI)
+  // const handleReset = () => {
+  //   setSermonText('');
+  //   setAnalysisType('quick');
+  //   setSelectedRoles(QUICK_ROLES);
+  //   setError(null);
+  //   setUsage(null);
+  //   setMessages([]);
+  // };
 
   return (
     <div className={`flex h-full max-h-[800px] bg-white rounded-lg shadow-lg overflow-hidden ${className}`}>
