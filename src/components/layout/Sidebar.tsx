@@ -11,6 +11,7 @@ import {
   Sun,
   Moon,
   CheckSquare,
+  Calendar as CalendarIcon,
   Brain,
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
@@ -21,6 +22,7 @@ const navigation = [
   { name: 'Панель управления', href: '/', icon: LayoutDashboard },
   { name: 'Люди', href: '/people', icon: Users },
   { name: 'Группы', href: '/groups', icon: UserCheck },
+  { name: 'Календарь', href: '/calendar', icon: CalendarIcon },
   { name: 'Задачи', href: '/tasks', icon: CheckSquare },
   { name: 'Коммуникации', href: '/communications', icon: MessageSquare },
   { name: 'Аналитика', href: '/analytics', icon: BarChart3 },
