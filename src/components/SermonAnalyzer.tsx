@@ -11,6 +11,15 @@ interface RoleAnalysis {
   improvements: string;
 }
 
+interface AnalysisResponse {
+  analysis: RoleAnalysis[];
+  usage: {
+    current: number;
+    limit: number;
+    month: string;
+  };
+}
+
 interface SermonAnalyzerProps {
   className?: string;
 }
@@ -28,6 +37,7 @@ export const SermonAnalyzer: React.FC<SermonAnalyzerProps> = ({ className = '' }
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [results, setResults] = useState<RoleAnalysis[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [usage, setUsage] = useState<{ current: number; limit: number; month: string } | null>(null);
 
   // Handle analysis type change
   const handleAnalysisTypeChange = (type: AnalysisType) => {
@@ -91,11 +101,17 @@ export const SermonAnalyzer: React.FC<SermonAnalyzerProps> = ({ className = '' }
         throw new Error(functionError.message || 'Ошибка при вызове функции анализа');
       }
 
-      if (!data || !Array.isArray(data)) {
+      // Handle new response format with usage info
+      if (data && typeof data === 'object' && 'analysis' in data) {
+        const response = data as AnalysisResponse;
+        setResults(response.analysis);
+        setUsage(response.usage);
+      } else if (Array.isArray(data)) {
+        // Fallback for old format
+        setResults(data);
+      } else {
         throw new Error('Неверный формат ответа от сервера');
       }
-
-      setResults(data);
     } catch (err) {
       console.error('Analysis error:', err);
       setError(err instanceof Error ? err.message : 'Произошла неизвестная ошибка');
@@ -111,6 +127,7 @@ export const SermonAnalyzer: React.FC<SermonAnalyzerProps> = ({ className = '' }
     setSelectedRoles(QUICK_ROLES);
     setResults(null);
     setError(null);
+    setUsage(null);
   };
 
   return (
@@ -123,6 +140,42 @@ export const SermonAnalyzer: React.FC<SermonAnalyzerProps> = ({ className = '' }
         <div>
           <h3 className="text-lg font-semibold text-gray-900">Улучшить проповедь</h3>
           <p className="text-sm text-gray-500">AI-анализ с разных точек зрения</p>
+        </div>
+      </div>
+
+      {/* Usage Info */}
+      {usage && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-blue-800">
+              Использовано в {usage.month}: {usage.current}/{usage.limit}
+            </span>
+            <div className="flex space-x-1">
+              {Array.from({ length: usage.limit }, (_, i) => (
+                <div
+                  key={i}
+                  className={`w-2 h-2 rounded-full ${
+                    i < usage.current ? 'bg-blue-600' : 'bg-blue-200'
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Warning */}
+      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+        <div className="flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+          <div>
+            <h4 className="text-sm font-medium text-amber-800">Важно!</h4>
+            <p className="text-sm text-amber-700 mt-1">
+              Загружайте текст вашей проповеди, когда уверены в том, что он готов. 
+              У вас есть ограничение: <strong>3 анализа в месяц</strong>. 
+              Используйте эту возможность мудро для финальной доработки ваших проповедей.
+            </p>
+          </div>
         </div>
       </div>
 

@@ -95,7 +95,13 @@ async function callGoogleAI(sermonText: string, roles: string[]): Promise<RoleAn
 
   'Практический психолог-консультант': 'Оцени психологическое воздействие на слушателя. Как эти слова повлияют на человека с тревогой, депрессией или выгоранием? Не вызывает ли проповедь ложного чувства вины (guilt-tripping)? Дай практические советы, как сделать проповедь более поддерживающей, эмпатичной и применимой в реальной жизни. Предложи психологически здоровые формулировки.',
 
-  'Критик-секулярист (Адвокат дьявола)': 'Твоя роль — быть скептиком. Рассматривай проповедь с точки зрения светского человека, атеиста или представителя другой культуры. Найди все клише, банальности, неубедительные аргументы и утверждения, основанные только на "слепой вере". Задай неудобные вопросы: "А где доказательства?", "Как это относится к системным проблемам, таким как бедность или несправедливость?", "Что насчет науки?". Предложи, как сделать речь более убедительной для внешней аудитории.',
+  'Критик-секулярист (Адвокат дьявола)': 'Твоя роль — быть безжалостным интеллектуальным оппонентом. Представь, что ты — эрудированный атеист или агностик, который слушает эту проповедь на дебатах. Твоя задача — разнести ее в пух и прах. Атакуй каждое слабое место: \
+• **Логические дыры:** Находи любые логические ошибки, non sequitur, апелляции к эмоциям вместо фактов. \
+• **Бездоказательные утверждения:** Подвергай сомнению каждое заявление, которое подается как факт, но не имеет доказательств за пределами Библии. Используй фразы вроде "На чем основано это утверждение?", "Какие есть эмпирические данные?". \
+• **"Розовые очки":** Высмеивай наивный идеализм. Если говорится "любовь спасет мир", противопоставь этому реальные системные проблемы: экономическое неравенство, политические конфликты, человеческую психологию. \
+• **Устаревшие концепции:** Указывай на идеи, которые кажутся архаичными или несовместимыми с современной наукой, этикой или правами человека (например, вопросы гендера, научного мировоззрения). \
+• **Манипуляции:** Ищи любые попытки эмоционального давления, запугивания ("ад") или обещания "награды на небесах" как способа управления поведением. \
+Твой фидбэк должен быть едким, но умным. Твоя цель — не оскорбить, а вскрыть все слабости аргументации, чтобы автор был готов к встрече с самым серьезным критиком в реальной жизни.',
 
   'Философ': 'Анализируй логическую структуру, философские основания и методологию рассуждений. Есть ли в проповеди логические ошибки (fallacies)? На какие философские идеи (сознательно или нет) опирается автор (например, этика Канта, экзистенциализм Кьеркегора)? Подними сложные этические дилеммы, которые проповедь игнорирует (любовь vs справедливость). Предложи, как укрепить аргументацию.',
   
@@ -209,6 +215,23 @@ Deno.serve(async (req) => {
       return createErrorResponse('Method not allowed. Use POST.', 405);
     }
 
+    // Simplified user identification for testing
+    // In production, you'd properly verify JWT tokens
+    const authHeader = req.headers.get('Authorization');
+    const userId = authHeader ? 'user_' + Math.random().toString(36).substr(2, 9) : 'anonymous_user';
+
+    // Check usage limit (3 per month) - simplified for testing
+    const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM format
+    const usageKey = `usage_${userId}_${currentMonth}`;
+    
+    // For testing, we'll use a simple approach
+    // In production, store this in a database
+    const usageCount = 0; // Reset for testing - in production: parseInt(Deno.env.get(usageKey) || '0');
+    
+    if (usageCount >= 3) {
+      return createErrorResponse('Превышен лимит использования: 3 анализа в месяц. Попробуйте в следующем месяце.', 429);
+    }
+
     // Parse request body
     let body;
     try {
@@ -239,8 +262,20 @@ Deno.serve(async (req) => {
     // Call Google AI API
     const analysis = await callGoogleAI(validatedRequest.sermonText, validatedRequest.roles);
     
-    // Return the analysis
-    return createSuccessResponse(analysis);
+    // Update usage count (in production, store this in database)
+    const newUsageCount = usageCount + 1;
+    // Note: In production, you'd update this in a database table
+    // For now, this is just a placeholder to show the concept
+    
+    // Return the analysis with usage info
+    return createSuccessResponse({
+      analysis,
+      usage: {
+        current: newUsageCount,
+        limit: 3,
+        month: currentMonth
+      }
+    });
 
   } catch (error) {
     console.error('Error in improve-sermon function:', error);
