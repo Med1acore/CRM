@@ -140,6 +140,35 @@
   z-index: 1000 !important;
 }
 
+/* Force glass style for any inner controls rendered by library */
+.toastui-calendar-popup-container *,
+.toastui-calendar-dropdown-menu * {
+  -webkit-backdrop-filter: blur(14px) saturate(150%) !important;
+  backdrop-filter: blur(14px) saturate(150%) !important;
+}
+
+/* Inputs/selects the lib sometimes tags with special classes */
+.toastui-calendar-input,
+.toastui-calendar-select-box,
+.toastui-calendar-select-box-input,
+.toastui-calendar-timepicker-input,
+.toastui-calendar-timepicker-select,
+.tui-datepicker-input,
+.tui-timepicker-selectbox {
+  background: rgba(255,255,255,0.6) !important;
+  color: #111 !important;
+  border: 1px solid rgba(255,255,255,0.6) !important;
+  border-radius: 14px !important;
+}
+
+/* Arrow/select buttons consistency */
+.toastui-calendar-select-box-btn,
+.toastui-calendar-dropdown-button {
+  background: rgba(255,255,255,0.55) !important;
+  border: 1px solid rgba(255,255,255,0.6) !important;
+  border-radius: 14px !important;
+}
+
 .toastui-calendar-section-item .toastui-calendar-label {
   font-weight: 600 !important;
   color: #374151 !important;
