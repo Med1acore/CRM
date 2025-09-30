@@ -107,6 +107,39 @@
   box-shadow: 0 6px 18px rgba(0,0,0,0.08);
 }
 
+/* Some dropdown menus are rendered in a floating layer; override them explicitly */
+.toastui-calendar-dropdown-menu,
+.toastui-calendar-dropdown-menu .toastui-calendar-content,
+.toastui-calendar-select-box,
+.toastui-calendar-select-box-btn {
+  border-radius: 14px !important;
+  background: rgba(255,255,255,0.7) !important;
+  border: 1px solid rgba(255,255,255,0.55) !important;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.12) !important;
+  backdrop-filter: blur(14px) saturate(150%) !important;
+}
+
+.toastui-calendar-dropdown-menu .toastui-calendar-item,
+.toastui-calendar-dropdown-menu .toastui-calendar-item .toastui-calendar-content {
+  background: transparent !important;
+  color: #111 !important;
+}
+
+/* Time picker fields */
+.toastui-calendar-timepicker,
+.toastui-calendar-timepicker input {
+  background: rgba(255,255,255,0.6) !important;
+  color: #111 !important;
+  border: 1px solid rgba(255,255,255,0.6) !important;
+  border-radius: 14px !important;
+}
+
+/* Ensure our popup sits above calendar contents */
+.toastui-calendar-popup-container,
+.toastui-calendar-dropdown-menu {
+  z-index: 1000 !important;
+}
+
 .toastui-calendar-section-item .toastui-calendar-label {
   font-weight: 600 !important;
   color: #374151 !important;
