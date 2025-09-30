@@ -60,12 +60,12 @@
 .toastui-calendar-popup-container input,
 .toastui-calendar-popup-container select,
 .toastui-calendar-popup-container textarea {
-  background-color: #ffffff !important;
+  background: linear-gradient(180deg, #ffffff, #f3f4f6) !important;
   color: #111 !important;
   border: 1px solid #d1d5db !important;
-  border-radius: 10px !important;
-  padding: 8px 10px !important;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05) inset;
+  border-radius: 12px !important;
+  padding: 10px 12px !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06) inset, 0 1px 2px rgba(0,0,0,0.04);
 }
 
 .toastui-calendar-popup-container ::placeholder {
@@ -97,13 +97,27 @@
 
 /* Dropdowns and badges */
 .toastui-calendar-dropdown-button,
-.toastui-calendar-dropdown-button .toastui-calendar-content {
-  border-radius: 10px !important;
+.toastui-calendar-dropdown-button .toastui-calendar-content,
+.toastui-calendar-dropdown {
+  border-radius: 12px !important;
+  background: linear-gradient(180deg, #ffffff, #f5f7fb) !important;
+  border: 1px solid #e5e7eb !important;
 }
 
 .toastui-calendar-section-item .toastui-calendar-label {
   font-weight: 600 !important;
   color: #374151 !important;
+}
+
+/* Date inputs wrapper adjustments */
+.toastui-calendar-section-item .toastui-calendar-section-item-date {
+  border-radius: 12px !important;
+}
+
+/* Remove harsh square borders around embedded icons/locks */
+.toastui-calendar-section-item .toastui-calendar-icon,
+.toastui-calendar-section-item .toastui-calendar-lock {
+  border-radius: 10px !important;
 }
 
 
