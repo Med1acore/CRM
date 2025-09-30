@@ -19,17 +19,19 @@
 }
 
 .calendar-header button {
-  background-color: #333;
+  background: linear-gradient(180deg, #2a2a2a, #1f1f1f);
   color: #fff;
-  border: 1px solid #555;
-  padding: 5px 12px;
-  border-radius: 5px;
+  border: 1px solid #3a3a3a;
+  padding: 6px 14px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: transform 0.15s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.06) inset, 0 2px 8px rgba(0,0,0,0.2);
 }
 
 .calendar-header button:hover {
-  background-color: #444;
+  background-color: #343434;
+  transform: translateY(-1px);
 }
 
 .current-date-range {
@@ -38,4 +40,235 @@
   margin-left: 15px;
 }
 
+/* --- Toast UI Calendar popups: light fields for readability --- */
+.toastui-calendar-popup-container {
+  color: #111;
+  background: rgba(255,255,255,0.28);
+  border-color: rgba(255,255,255,0.45);
+  border-radius: 16px !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25), 0 1px 0 rgba(255,255,255,0.2) inset;
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+}
+
+.toastui-calendar-popup-container .toastui-calendar-popup,
+.toastui-calendar-popup-container .toastui-calendar-form,
+.toastui-calendar-popup-container .toastui-calendar-content {
+  background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.35)) !important;
+  color: #111 !important;
+  border-radius: 16px !important;
+}
+
+.toastui-calendar-popup-container input,
+.toastui-calendar-popup-container select,
+.toastui-calendar-popup-container textarea {
+  background: rgba(255,255,255,0.6) !important;
+  color: #111 !important;
+  border: 1px solid rgba(255,255,255,0.6) !important;
+  border-radius: 14px !important;
+  padding: 10px 12px !important;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.7) inset, 0 6px 20px rgba(0,0,0,0.08);
+}
+
+.toastui-calendar-popup-container ::placeholder {
+  color: #666 !important;
+}
+
+.toastui-calendar-popup-container .toastui-calendar-section-item .toastui-calendar-label,
+.toastui-calendar-popup-container .toastui-calendar-dropdown-button,
+.toastui-calendar-popup-container .toastui-calendar-dropdown-button .toastui-calendar-content {
+  color: #111 !important;
+}
+
+.toastui-calendar-popup-container .toastui-calendar-button-save {
+  background: linear-gradient(180deg, #ff9440, #ff6a00) !important;
+  border-color: rgba(255,255,255,0.6) !important;
+  color: #fff !important;
+  border-radius: 14px !important;
+  padding: 10px 18px !important;
+  box-shadow: 0 10px 24px rgba(255,106,0,0.35), 0 1px 0 rgba(255,255,255,0.3) inset;
+}
+
+.toastui-calendar-popup-container .toastui-calendar-button-cancel {
+  background: rgba(255,255,255,0.45) !important;
+  border: 1px solid rgba(255,255,255,0.6) !important;
+  color: #111 !important;
+  border-radius: 14px !important;
+  padding: 10px 18px !important;
+}
+
+/* Dropdowns and badges */
+.toastui-calendar-dropdown-button,
+.toastui-calendar-dropdown-button .toastui-calendar-content,
+.toastui-calendar-dropdown {
+  border-radius: 14px !important;
+  background: rgba(255,255,255,0.6) !important;
+  border: 1px solid rgba(255,255,255,0.5) !important;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+/* Some dropdown menus are rendered in a floating layer; override them explicitly */
+.toastui-calendar-dropdown-menu,
+.toastui-calendar-dropdown-menu .toastui-calendar-content,
+.toastui-calendar-select-box,
+.toastui-calendar-select-box-btn {
+  border-radius: 14px !important;
+  background: rgba(255,255,255,0.7) !important;
+  border: 1px solid rgba(255,255,255,0.55) !important;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.12) !important;
+  backdrop-filter: blur(14px) saturate(150%) !important;
+}
+
+.toastui-calendar-dropdown-menu .toastui-calendar-item,
+.toastui-calendar-dropdown-menu .toastui-calendar-item .toastui-calendar-content {
+  background: transparent !important;
+  color: #111 !important;
+}
+
+/* Time picker fields */
+.toastui-calendar-timepicker,
+.toastui-calendar-timepicker input {
+  background: rgba(255,255,255,0.6) !important;
+  color: #111 !important;
+  border: 1px solid rgba(255,255,255,0.6) !important;
+  border-radius: 14px !important;
+}
+
+/* Ensure our popup sits above calendar contents */
+.toastui-calendar-popup-container,
+.toastui-calendar-dropdown-menu {
+  z-index: 1000 !important;
+}
+
+/* Global floating layer used by TUI Calendar (dropdowns, pickers) */
+.toastui-calendar-layer,
+.toastui-calendar-layer * {
+  -webkit-backdrop-filter: blur(14px) saturate(150%) !important;
+  backdrop-filter: blur(14px) saturate(150%) !important;
+}
+
+.toastui-calendar-layer,
+.toastui-calendar-layer .toastui-calendar-content,
+.toastui-calendar-layer .toastui-calendar-item,
+.toastui-calendar-layer .toastui-calendar-dropdown-menu,
+.toastui-calendar-layer .toastui-calendar-select-box,
+.toastui-calendar-layer .toastui-calendar-input,
+.toastui-calendar-layer .toastui-calendar-timepicker-input,
+.toastui-calendar-layer .toastui-calendar-timepicker-select,
+.toastui-calendar-layer .tui-datepicker-input,
+.toastui-calendar-layer .tui-timepicker-selectbox {
+  background: rgba(255,255,255,0.6) !important;
+  color: #111 !important;
+  border: 1px solid rgba(255,255,255,0.6) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.12) !important;
+}
+
+/* Force glass style for any inner controls rendered by library */
+.toastui-calendar-popup-container *,
+.toastui-calendar-dropdown-menu * {
+  -webkit-backdrop-filter: blur(14px) saturate(150%) !important;
+  backdrop-filter: blur(14px) saturate(150%) !important;
+}
+
+/* Inputs/selects the lib sometimes tags with special classes */
+.toastui-calendar-input,
+.toastui-calendar-select-box,
+.toastui-calendar-select-box-input,
+.toastui-calendar-timepicker-input,
+.toastui-calendar-timepicker-select,
+.tui-datepicker-input,
+.tui-timepicker-selectbox {
+  background: rgba(255,255,255,0.6) !important;
+  color: #111 !important;
+  border: 1px solid rgba(255,255,255,0.6) !important;
+  border-radius: 14px !important;
+}
+
+/* Arrow/select buttons consistency */
+.toastui-calendar-select-box-btn,
+.toastui-calendar-dropdown-button {
+  background: rgba(255,255,255,0.55) !important;
+  border: 1px solid rgba(255,255,255,0.6) !important;
+  border-radius: 14px !important;
+}
+
+.toastui-calendar-section-item .toastui-calendar-label {
+  font-weight: 600 !important;
+  color: #374151 !important;
+}
+
+/* Date inputs wrapper adjustments */
+.toastui-calendar-section-item .toastui-calendar-section-item-date {
+  border-radius: 12px !important;
+}
+
+/* Remove harsh square borders around embedded icons/locks */
+.toastui-calendar-section-item .toastui-calendar-icon,
+.toastui-calendar-section-item .toastui-calendar-lock {
+  border-radius: 10px !important;
+}
+
+/* Custom glass modal */
+.tui-glass-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+}
+
+.tui-glass-modal {
+  width: 560px;
+  background: rgba(255,255,255,0.25);
+  border: 1px solid rgba(255,255,255,0.45);
+  border-radius: 16px;
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+  color: #111;
+}
+
+.tui-glass-modal-header {
+  padding: 16px 20px;
+  font-weight: 600;
+}
+
+.tui-glass-modal-body {
+  padding: 0 20px 20px 20px;
+}
+
+.tui-field { margin-bottom: 12px; }
+.tui-field-row { display: flex; gap: 12px; }
+.tui-field label { display:block; font-size: 12px; margin-bottom: 6px; color:#374151; }
+.tui-field input[type="text"],
+.tui-field input[type="datetime-local"],
+.tui-glass-modal input {
+  width: 100%;
+  background: rgba(255,255,255,0.65);
+  border: 1px solid rgba(255,255,255,0.6);
+  border-radius: 12px;
+  padding: 10px 12px;
+  color: #111;
+}
+
+.tui-checkbox { display: flex; align-items: center; gap: 8px; }
+
+.tui-glass-modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 12px 20px 20px; }
+.tui-glass-modal-footer .btn-save {
+  background: linear-gradient(180deg, #ff9440, #ff6a00);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.5);
+  border-radius: 12px;
+  padding: 10px 18px;
+}
+.tui-glass-modal-footer .btn-cancel {
+  background: rgba(255,255,255,0.5);
+  color: #111;
+  border: 1px solid rgba(255,255,255,0.6);
+  border-radius: 12px;
+  padding: 10px 18px;
+}
 
