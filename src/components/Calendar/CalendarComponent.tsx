@@ -60,7 +60,30 @@ const CalendarComponent = () => {
   const [dateRange, setDateRange] = useState('')
 
   useEffect(() => {
+    // Inject high-specificity glassmorphism styles once per app lifetime
+    const injectCalendarGlassStyles = () => {
+      const styleId = 'tui-calendar-glass-styles'
+      if (typeof document === 'undefined' || document.getElementById(styleId)) return
+      const style = document.createElement('style')
+      style.id = styleId
+      style.textContent = `
+/* Popup container */
+.toastui-calendar-popup-container { color:#111; background:rgba(255,255,255,0.28); border-color:rgba(255,255,255,0.45); border-radius:16px !important; box-shadow:0 10px 30px rgba(0,0,0,0.25),0 1px 0 rgba(255,255,255,0.2) inset; -webkit-backdrop-filter:blur(16px) saturate(150%); backdrop-filter:blur(16px) saturate(150%); }
+.toastui-calendar-popup-container .toastui-calendar-popup, .toastui-calendar-popup-container .toastui-calendar-form, .toastui-calendar-popup-container .toastui-calendar-content { background:linear-gradient(180deg,rgba(255,255,255,0.6),rgba(255,255,255,0.35)) !important; color:#111 !important; border-radius:16px !important; }
+.toastui-calendar-popup-container input, .toastui-calendar-popup-container select, .toastui-calendar-popup-container textarea { background:rgba(255,255,255,0.6) !important; color:#111 !important; border:1px solid rgba(255,255,255,0.6) !important; border-radius:14px !important; padding:10px 12px !important; box-shadow:0 1px 0 rgba(255,255,255,0.7) inset,0 6px 20px rgba(0,0,0,0.08); }
+.toastui-calendar-popup-container .toastui-calendar-button-save { background:linear-gradient(180deg,#ff9440,#ff6a00) !important; border-color:rgba(255,255,255,0.6) !important; color:#fff !important; border-radius:14px !important; padding:10px 18px !important; box-shadow:0 10px 24px rgba(255,106,0,0.35),0 1px 0 rgba(255,255,255,0.3) inset; }
+.toastui-calendar-popup-container .toastui-calendar-button-cancel { background:rgba(255,255,255,0.45) !important; border:1px solid rgba(255,255,255,0.6) !important; color:#111 !important; border-radius:14px !important; padding:10px 18px !important; }
+/* Floating layers */
+.toastui-calendar-layer, .toastui-calendar-dropdown-menu { z-index:1000 !important; }
+.toastui-calendar-layer, .toastui-calendar-layer * { -webkit-backdrop-filter:blur(14px) saturate(150%) !important; backdrop-filter:blur(14px) saturate(150%) !important; }
+.toastui-calendar-layer, .toastui-calendar-layer .toastui-calendar-content, .toastui-calendar-layer .toastui-calendar-item, .toastui-calendar-layer .toastui-calendar-dropdown-menu, .toastui-calendar-layer .toastui-calendar-select-box, .toastui-calendar-layer .toastui-calendar-input, .toastui-calendar-layer .toastui-calendar-timepicker-input, .toastui-calendar-layer .toastui-calendar-timepicker-select, .toastui-calendar-layer .tui-datepicker-input, .toastui-calendar-layer .tui-timepicker-selectbox { background:rgba(255,255,255,0.6) !important; color:#111 !important; border:1px solid rgba(255,255,255,0.6) !important; border-radius:14px !important; box-shadow:0 10px 24px rgba(0,0,0,0.12) !important; }
+.toastui-calendar-dropdown-button, .toastui-calendar-dropdown-button .toastui-calendar-content, .toastui-calendar-dropdown, .toastui-calendar-select-box-btn { border-radius:14px !important; background:rgba(255,255,255,0.6) !important; border:1px solid rgba(255,255,255,0.5) !important; box-shadow:0 6px 18px rgba(0,0,0,0.08); }
+`
+      document.head.appendChild(style)
+    }
+
     if (calendarRef.current) {
+      injectCalendarGlassStyles()
       const options = {
         // Все наши предыдущие настройки темы и вида остаются здесь
         defaultView: 'month',
