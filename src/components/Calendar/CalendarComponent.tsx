@@ -58,6 +58,28 @@ const CalendarComponent = () => {
 
   // Состояние для отображения текущего диапазона дат в шапке
   const [dateRange, setDateRange] = useState('')
+  // Состояние для кастомного модала
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [form, setForm] = useState({
+    id: '',
+    calendarId: 'work',
+    title: '',
+    location: '',
+    start: '',
+    end: '',
+    allDay: false,
+  })
+
+  const toLocalInput = (date: Date) => {
+    const pad = (n: number) => String(n).padStart(2, '0')
+    const yyyy = date.getFullYear()
+    const mm = pad(date.getMonth() + 1)
+    const dd = pad(date.getDate())
+    const hh = pad(date.getHours())
+    const mi = pad(date.getMinutes())
+    return `${yyyy}-${mm}-${dd}T${hh}:${mi}`
+  }
 
   useEffect(() => {
     // Inject high-specificity glassmorphism styles once per app lifetime
@@ -87,8 +109,8 @@ const CalendarComponent = () => {
       const options = {
         // Все наши предыдущие настройки темы и вида остаются здесь
         defaultView: 'month',
-        useFormPopup: true,
-        useDetailPopup: true,
+        useFormPopup: false,
+        useDetailPopup: false,
         usageStatistics: false,
         calendars: [
           {
@@ -134,13 +156,33 @@ const CalendarComponent = () => {
         calendar.updateEvent(event.id, event.calendarId, changes)
       })
 
-      calendar.on('beforeCreateEvent', (eventData: any) => {
-        const newEvent = {
-          id: String(Date.now()),
-          calendarId: (eventData as any).calendarId || 'work',
-          ...(eventData as any),
-        }
-        calendar.createEvents([newEvent])
+      // Кастомная форма вместо beforeCreateEvent
+      calendar.on('selectDateTime', ({ start, end }: any) => {
+        setIsEditing(false)
+        setForm({
+          id: '',
+          calendarId: 'work',
+          title: '',
+          location: '',
+          start: toLocalInput(new Date(start)),
+          end: toLocalInput(new Date(end)),
+          allDay: false,
+        })
+        setIsModalOpen(true)
+      })
+
+      calendar.on('clickEvent', ({ event }: any) => {
+        setIsEditing(true)
+        setForm({
+          id: event.id,
+          calendarId: event.calendarId,
+          title: event.title || '',
+          location: (event as any).location || '',
+          start: toLocalInput(new Date(event.start)),
+          end: toLocalInput(new Date(event.end)),
+          allDay: !!event.isAllday,
+        })
+        setIsModalOpen(true)
       })
     }
     // Очистка инстанса для совместимости с React
@@ -178,6 +220,41 @@ const CalendarComponent = () => {
     calendarInstanceRef.current?.changeView(viewName)
   }
 
+  const handleSave = () => {
+    if (!calendarInstanceRef.current) return
+    if (isEditing) {
+      calendarInstanceRef.current.updateEvent(form.id, form.calendarId, {
+        title: form.title,
+        location: form.location,
+        start: new Date(form.start),
+        end: new Date(form.end),
+        isAllday: form.allDay,
+      })
+    } else {
+      calendarInstanceRef.current.createEvents([
+        {
+          id: String(Date.now()),
+          calendarId: form.calendarId,
+          title: form.title,
+          location: form.location,
+          start: new Date(form.start),
+          end: new Date(form.end),
+          category: form.allDay ? 'allday' : 'time',
+          isDraggable: true,
+        },
+      ])
+    }
+    setIsModalOpen(false)
+    // Очистить визуальное выделение диапазона после сохранения
+    ;(calendarInstanceRef.current as any)?.clearGridSelections?.()
+  }
+
+  const handleCancel = () => {
+    setIsModalOpen(false)
+    // Очистить визуальное выделение, если оно осталось после select
+    ;(calendarInstanceRef.current as any)?.clearGridSelections?.()
+  }
+
   return (
     <div className="calendar-wrapper">
       <div className="calendar-header">
@@ -194,6 +271,44 @@ const CalendarComponent = () => {
         </div>
       </div>
       <div id="calendar-container" ref={calendarRef} style={{ height: '800px' }}></div>
+
+      {isModalOpen && (
+        <div className="tui-glass-modal-overlay">
+          <div className="tui-glass-modal">
+            <div className="tui-glass-modal-header">{isEditing ? 'Редактировать событие' : 'Новое событие'}</div>
+            <div className="tui-glass-modal-body">
+              <div className="tui-field">
+                <label>Заголовок</label>
+                <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
+              </div>
+              <div className="tui-field">
+                <label>Локация</label>
+                <input value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
+              </div>
+              <div className="tui-field-row">
+                <div className="tui-field">
+                  <label>Начало</label>
+                  <input type="datetime-local" value={form.start} onChange={(e) => setForm({ ...form, start: e.target.value })} />
+                </div>
+                <div className="tui-field">
+                  <label>Конец</label>
+                  <input type="datetime-local" value={form.end} onChange={(e) => setForm({ ...form, end: e.target.value })} />
+                </div>
+              </div>
+              <div className="tui-field-row">
+                <label className="tui-checkbox">
+                  <input type="checkbox" checked={form.allDay} onChange={(e) => setForm({ ...form, allDay: e.target.checked })} />
+                  <span>Весь день</span>
+                </label>
+              </div>
+            </div>
+            <div className="tui-glass-modal-footer">
+              <button className="btn-cancel" onClick={handleCancel}>Отмена</button>
+              <button className="btn-save" onClick={handleSave}>{isEditing ? 'Обновить' : 'Создать'}</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
