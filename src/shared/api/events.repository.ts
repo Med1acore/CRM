@@ -8,7 +8,10 @@ type EventUpdate = Database['public']['Tables']['events']['Update'];
 export const eventsRepository = {
   async getAll() {
     if (!supabase) throw new Error('Supabase client not initialized');
-    const { data, error } = await supabase.from('events').select('*').order('start_date', { ascending: true });
+    const { data, error } = await supabase
+      .from('events')
+      .select('*')
+      .order('start_date', { ascending: true });
     if (error) throw error;
     return data as Event[];
   },
@@ -29,7 +32,12 @@ export const eventsRepository = {
 
   async update(id: string, updates: EventUpdate) {
     if (!supabase) throw new Error('Supabase client not initialized');
-    const { data, error } = await supabase.from('events').update(updates).eq('id', id).select().single();
+    const { data, error } = await supabase
+      .from('events')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
     if (error) throw error;
     return data as Event;
   },
@@ -86,4 +94,3 @@ export const eventsRepository = {
     return data;
   },
 };
-

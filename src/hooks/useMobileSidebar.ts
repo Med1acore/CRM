@@ -1,43 +1,43 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react';
 
 export function useMobileSidebar() {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Close sidebar when route changes (mobile)
   useEffect(() => {
-    setSidebarOpen(false)
-  }, [])
+    setSidebarOpen(false);
+  }, []);
 
   // Close sidebar on escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        setSidebarOpen(false)
+        setSidebarOpen(false);
       }
-    }
+    };
 
-    document.addEventListener('keydown', handleEscape)
-    return () => document.removeEventListener('keydown', handleEscape)
-  }, [])
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, []);
 
   // Prevent body scroll when sidebar is open on mobile
   useEffect(() => {
     if (sidebarOpen) {
-      document.body.style.overflow = 'hidden'
+      document.body.style.overflow = 'hidden';
     } else {
-      document.body.style.overflow = 'unset'
+      document.body.style.overflow = 'unset';
     }
 
     return () => {
-      document.body.style.overflow = 'unset'
-    }
-  }, [sidebarOpen])
+      document.body.style.overflow = 'unset';
+    };
+  }, [sidebarOpen]);
 
   return {
     sidebarOpen,
     setSidebarOpen,
     openSidebar: () => setSidebarOpen(true),
     closeSidebar: () => setSidebarOpen(false),
-    toggleSidebar: () => setSidebarOpen(!sidebarOpen)
-  }
+    toggleSidebar: () => setSidebarOpen(!sidebarOpen),
+  };
 }

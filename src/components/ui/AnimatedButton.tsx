@@ -1,22 +1,22 @@
-import React from 'react'
+import React from 'react';
 
 interface AnimatedButtonProps {
-  children: React.ReactNode
-  onClick?: () => void
-  type?: 'button' | 'submit' | 'reset'
-  disabled?: boolean
-  className?: string
+  children: React.ReactNode;
+  onClick?: () => void;
+  type?: 'button' | 'submit' | 'reset';
+  disabled?: boolean;
+  className?: string;
 }
 
-export default function AnimatedButton({ 
-  children, 
-  onClick, 
-  type = 'button', 
+export default function AnimatedButton({
+  children,
+  onClick,
+  type = 'button',
   disabled = false,
-  className = ''
+  className = '',
 }: AnimatedButtonProps) {
   return (
-    <button 
+    <button
       className={`animated-button ${className}`}
       onClick={onClick}
       type={type}
@@ -41,19 +41,21 @@ export default function AnimatedButton({
         margin: '0 auto',
         background: 'transparent',
         cursor: 'pointer',
-        whiteSpace: 'nowrap'
+        whiteSpace: 'nowrap',
       }}
     >
-      <span style={{
-        position: 'relative',
-        zIndex: 2,
-        transition: 'all 0.3s ease',
-        display: 'block',
-        textAlign: 'center',
-        width: '100%'
-      }}>
+      <span
+        style={{
+          position: 'relative',
+          zIndex: 2,
+          transition: 'all 0.3s ease',
+          display: 'block',
+          textAlign: 'center',
+          width: '100%',
+        }}
+      >
         {children}
       </span>
     </button>
-  )
+  );
 }

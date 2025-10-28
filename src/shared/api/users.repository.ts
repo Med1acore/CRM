@@ -8,7 +8,10 @@ type UserUpdate = Database['public']['Tables']['users']['Update'];
 export const usersRepository = {
   async getAll() {
     if (!supabase) throw new Error('Supabase client not initialized');
-    const { data, error } = await supabase.from('users').select('*').order('created_at', { ascending: false });
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .order('created_at', { ascending: false });
     if (error) throw error;
     return data as User[];
   },
@@ -29,7 +32,12 @@ export const usersRepository = {
 
   async update(id: string, updates: UserUpdate) {
     if (!supabase) throw new Error('Supabase client not initialized');
-    const { data, error } = await supabase.from('users').update(updates).eq('id', id).select().single();
+    const { data, error } = await supabase
+      .from('users')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
     if (error) throw error;
     return data as User;
   },
@@ -58,4 +66,3 @@ export const usersRepository = {
     return data as User[];
   },
 };
-

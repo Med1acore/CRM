@@ -1,7 +1,7 @@
 // src/components/tasks/CardComponent.tsx
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Card } from "@/types/tasks";
+import { Card } from '@/types/tasks';
 import { MoreHorizontal, Calendar, User } from 'lucide-react';
 
 interface CardComponentProps {
@@ -14,18 +14,12 @@ interface CardComponentProps {
  * Kanban card with drag/drop interactions and optional actions.
  */
 export function CardComponent({ card, onEdit, onDelete }: CardComponentProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-  } = useSortable({ 
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
     id: card.id,
     data: {
       type: 'card',
       card: card,
-    }
+    },
   });
 
   const style = {
@@ -47,7 +41,7 @@ export function CardComponent({ card, onEdit, onDelete }: CardComponentProps) {
           {card.title}
         </h4>
         {onDelete && (
-          <button 
+          <button
             onClick={(e) => {
               e.stopPropagation();
               onDelete(card.id);

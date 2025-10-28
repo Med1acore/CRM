@@ -9,7 +9,10 @@ type GroupMember = Database['public']['Tables']['group_members']['Row'];
 export const groupsRepository = {
   async getAll() {
     if (!supabase) throw new Error('Supabase client not initialized');
-    const { data, error } = await supabase.from('groups').select('*').order('created_at', { ascending: false });
+    const { data, error } = await supabase
+      .from('groups')
+      .select('*')
+      .order('created_at', { ascending: false });
     if (error) throw error;
     return data as Group[];
   },
@@ -30,7 +33,12 @@ export const groupsRepository = {
 
   async update(id: string, updates: GroupUpdate) {
     if (!supabase) throw new Error('Supabase client not initialized');
-    const { data, error } = await supabase.from('groups').update(updates).eq('id', id).select().single();
+    const { data, error } = await supabase
+      .from('groups')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
     if (error) throw error;
     return data as Group;
   },
@@ -72,4 +80,3 @@ export const groupsRepository = {
     if (error) throw error;
   },
 };
-

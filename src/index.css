@@ -31,25 +31,25 @@
 }
 
 .pt-sans-regular {
-  font-family: "PT Sans", sans-serif;
+  font-family: 'PT Sans', sans-serif;
   font-weight: 400;
   font-style: normal;
 }
 
 .pt-sans-bold {
-  font-family: "PT Sans", sans-serif;
+  font-family: 'PT Sans', sans-serif;
   font-weight: 700;
   font-style: normal;
 }
 
 .pt-sans-regular-italic {
-  font-family: "PT Sans", sans-serif;
+  font-family: 'PT Sans', sans-serif;
   font-weight: 400;
   font-style: italic;
 }
 
 .pt-sans-bold-italic {
-  font-family: "PT Sans", sans-serif;
+  font-family: 'PT Sans', sans-serif;
   font-weight: 700;
   font-style: italic;
 }
@@ -60,8 +60,10 @@
   }
   body {
     @apply bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100;
-    font-family: "PT Sans", sans-serif;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-family: 'PT Sans', sans-serif;
+    font-feature-settings:
+      'rlig' 1,
+      'calt' 1;
   }
   :root {
     --background: 0 0% 100%;
@@ -122,43 +124,50 @@
   .btn {
     @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
   }
-  
+
   .btn-primary {
     @apply bg-blue-500/20 border border-blue-400/30 text-white hover:bg-blue-500/30 backdrop-blur-sm;
   }
-  
+
   .btn-secondary {
     @apply bg-white/10 border border-white/20 text-white hover:bg-white/20 backdrop-blur-sm;
   }
-  
+
   .btn-warning {
     @apply bg-yellow-500/20 border border-yellow-400/30 text-white hover:bg-yellow-500/30 backdrop-blur-sm;
   }
-  
+
   .btn-success {
     @apply bg-green-500/20 border border-green-400/30 text-white hover:bg-green-500/30 backdrop-blur-sm;
   }
-  
+
   .btn-danger {
     @apply bg-red-500/20 border border-red-400/30 text-white hover:bg-red-500/30 backdrop-blur-sm;
   }
-  
+
   .card {
     @apply rounded-lg border border-white/10 bg-black/20 backdrop-blur-sm text-white shadow-sm;
   }
-  
-  .card h1, .card h2, .card h3, .card h4, .card h5, .card h6 {
+
+  .card h1,
+  .card h2,
+  .card h3,
+  .card h4,
+  .card h5,
+  .card h6 {
     @apply text-white;
   }
-  
-  .card p, .card span, .card div {
+
+  .card p,
+  .card span,
+  .card div {
     @apply text-white/90;
   }
-  
+
   .input {
     @apply flex h-10 w-full rounded-md border border-white/20 bg-white/10 px-3 py-2 text-sm text-white placeholder:text-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 backdrop-blur-sm;
   }
-  
+
   .bg-church {
     background-image: url('/back.webp');
     background-size: cover;
@@ -167,7 +176,7 @@
     filter: blur(8px);
     transform: scale(1.1);
   }
-  
+
   .bg-church-light {
     background-image: url('/back.webp');
     background-size: cover;
@@ -176,7 +185,7 @@
     filter: blur(4px);
     transform: scale(1.05);
   }
-  
+
   .bg-church-strong {
     background-image: url('/back.webp');
     background-size: cover;
@@ -185,77 +194,75 @@
     filter: blur(12px);
     transform: scale(1.15);
   }
-  
-.bg-grid-white\/\[0\.02\] {
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-  background-size: 20px 20px;
-}
 
-/* AnimatedButton стили */
-.animated-button {
-  position: relative;
-  overflow: hidden;
-}
+  .bg-grid-white\/\[0\.02\] {
+    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
 
-.animated-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
-  right: 50%;
-  bottom: 0;
-  opacity: 0;
-  background: linear-gradient(to bottom, #60a5fa, #3b82f6);
-  border-radius: 8px;
-  z-index: -1;
-  transition: 0.5s all ease;
-}
-
-.animated-button:hover::before,
-.animated-button:focus::before {
-  left: 0;
-  right: 0;
-  opacity: 1;
-}
-
-.animated-button:hover,
-.animated-button:focus {
-  color: white !important;
-  border-color: rgba(96, 165, 250, 0.6) !important;
-}
-
-.animated-button:active {
-  transform: scale(0.95);
-}
-
-.animated-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* Медиа-запросы для AnimatedButton */
-@media (min-width: 640px) {
+  /* AnimatedButton стили */
   .animated-button {
-    font-size: 13px !important;
-    letter-spacing: 1px !important;
-    width: 44% !important;
-    padding: 0.5em 1em !important;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .animated-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    right: 50%;
+    bottom: 0;
+    opacity: 0;
+    background: linear-gradient(to bottom, #60a5fa, #3b82f6);
+    border-radius: 8px;
+    z-index: -1;
+    transition: 0.5s all ease;
+  }
+
+  .animated-button:hover::before,
+  .animated-button:focus::before {
+    left: 0;
+    right: 0;
+    opacity: 1;
+  }
+
+  .animated-button:hover,
+  .animated-button:focus {
+    color: white !important;
+    border-color: rgba(96, 165, 250, 0.6) !important;
+  }
+
+  .animated-button:active {
+    transform: scale(0.95);
+  }
+
+  .animated-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* Медиа-запросы для AnimatedButton */
+  @media (min-width: 640px) {
+    .animated-button {
+      font-size: 13px !important;
+      letter-spacing: 1px !important;
+      width: 44% !important;
+      padding: 0.5em 1em !important;
+    }
+  }
+
+  /* Мобильные стили для AnimatedButton */
+  @media (max-width: 639px) {
+    .animated-button {
+      padding: 0.4em 0.2em !important;
+      font-size: 11px !important;
+      letter-spacing: 0.5px !important;
+      width: 37% !important;
+    }
   }
 }
-
-/* Мобильные стили для AnimatedButton */
-@media (max-width: 639px) {
-  .animated-button {
-    padding: 0.4em 0.2em !important;
-    font-size: 11px !important;
-    letter-spacing: 0.5px !important;
-    width: 37% !important;
-  }
-}
-}
-
-
 
 @layer base {
   * {

@@ -1,4 +1,4 @@
-export type PersonStatus = "active" | "guest" | "new" | "leader";
+export type PersonStatus = 'active' | 'guest' | 'new' | 'leader';
 
 export type Person = {
   id: string;
@@ -8,5 +8,3 @@ export type Person = {
   status: PersonStatus;
   tags: string[];
 };
-
-

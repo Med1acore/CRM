@@ -1,7 +1,7 @@
-import type { FC } from 'react'
+import type { FC } from 'react';
 
 interface PeopleHeaderProps {
-  total: number
+  total: number;
 }
 
 /**
@@ -9,15 +9,10 @@ interface PeopleHeaderProps {
  */
 export const PeopleHeader: FC<PeopleHeaderProps> = ({ total }) => (
   <div>
-    <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-      Люди и участники
-    </h1>
+    <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Люди и участники</h1>
     <p className="mt-2 text-gray-600 dark:text-gray-400">
       Управление данными о членах церкви и гостях
-      <span className="ml-2 text-sm text-muted-foreground">
-        (Всего: {total} пользователей)
-      </span>
+      <span className="ml-2 text-sm text-muted-foreground">(Всего: {total} пользователей)</span>
     </p>
   </div>
-)
-
+);

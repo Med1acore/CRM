@@ -1,7 +1,15 @@
-import type { Person } from "@/types/person";
-import { Mail, Phone, User } from "lucide-react";
+import type { Person } from '@/types/person';
+import { Mail, Phone, User } from 'lucide-react';
 
-export function PersonCard({ person, onEdit, onDelete }: { person: Person; onEdit?: (id: string) => void; onDelete?: (id: string) => void }) {
+export function PersonCard({
+  person,
+  onEdit,
+  onDelete,
+}: {
+  person: Person;
+  onEdit?: (id: string) => void;
+  onDelete?: (id: string) => void;
+}) {
   return (
     <div className="bg-card border border-border rounded-lg p-4 flex gap-4">
       <div className="flex-shrink-0">
@@ -24,23 +32,28 @@ export function PersonCard({ person, onEdit, onDelete }: { person: Person; onEdi
             {person.status}
           </div>
           <div className="flex flex-wrap gap-2">
-            {person.tags.map(tag => (
-              <span key={tag} className="px-2 py-0.5 rounded-md text-xs bg-muted text-muted-foreground">
+            {person.tags.map((tag) => (
+              <span
+                key={tag}
+                className="px-2 py-0.5 rounded-md text-xs bg-muted text-muted-foreground"
+              >
                 {tag}
               </span>
             ))}
           </div>
         </div>
         <div className="flex gap-2 mt-2">
-          <button 
+          <button
             className="btn btn-secondary"
             onClick={() => (onEdit ? onEdit(person.id) : console.log('Edit person:', person.id))}
           >
             Редактировать
           </button>
-          <button 
+          <button
             className="btn btn-danger"
-            onClick={() => (onDelete ? onDelete(person.id) : console.log('Delete person:', person.id))}
+            onClick={() =>
+              onDelete ? onDelete(person.id) : console.log('Delete person:', person.id)
+            }
           >
             Удалить
           </button>
@@ -49,5 +62,3 @@ export function PersonCard({ person, onEdit, onDelete }: { person: Person; onEdi
     </div>
   );
 }
-
-

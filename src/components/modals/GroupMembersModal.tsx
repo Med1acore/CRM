@@ -1,25 +1,25 @@
-import { useState } from 'react'
-import { X, Users, Plus, Search, UserMinus, UserCheck } from 'lucide-react'
+import { useState } from 'react';
+import { X, Users, Plus, Search, UserMinus, UserCheck } from 'lucide-react';
 
 interface GroupMembersModalProps {
-  isOpen: boolean
-  onClose: () => void
+  isOpen: boolean;
+  onClose: () => void;
   group: {
-    id: string
-    name: string
-    members_count: number
-    maxMembers?: number
-  }
+    id: string;
+    name: string;
+    members_count: number;
+    maxMembers?: number;
+  };
 }
 
 interface Member {
-  id: string
-  name: string
-  email: string
-  phone: string
-  status: 'active' | 'inactive'
-  joinDate: string
-  role: 'member' | 'leader' | 'assistant'
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  status: 'active' | 'inactive';
+  joinDate: string;
+  role: 'member' | 'leader' | 'assistant';
 }
 
 // Mock данные участников
@@ -31,7 +31,7 @@ const mockMembers: Member[] = [
     phone: '+7 (999) 123-45-67',
     status: 'active',
     joinDate: '2024-01-15',
-    role: 'leader'
+    role: 'leader',
   },
   {
     id: '2',
@@ -40,7 +40,7 @@ const mockMembers: Member[] = [
     phone: '+7 (999) 234-56-78',
     status: 'active',
     joinDate: '2024-02-20',
-    role: 'assistant'
+    role: 'assistant',
   },
   {
     id: '3',
@@ -49,7 +49,7 @@ const mockMembers: Member[] = [
     phone: '+7 (999) 345-67-89',
     status: 'active',
     joinDate: '2024-03-10',
-    role: 'member'
+    role: 'member',
   },
   {
     id: '4',
@@ -58,7 +58,7 @@ const mockMembers: Member[] = [
     phone: '+7 (999) 456-78-90',
     status: 'active',
     joinDate: '2024-03-25',
-    role: 'member'
+    role: 'member',
   },
   {
     id: '5',
@@ -67,9 +67,9 @@ const mockMembers: Member[] = [
     phone: '+7 (999) 567-89-01',
     status: 'inactive',
     joinDate: '2024-01-30',
-    role: 'member'
-  }
-]
+    role: 'member',
+  },
+];
 
 // Доступные для добавления участники
 const availableMembers = [
@@ -77,96 +77,106 @@ const availableMembers = [
     id: '6',
     name: 'Игорь Смирнов',
     email: 'igor@example.com',
-    phone: '+7 (999) 678-90-12'
+    phone: '+7 (999) 678-90-12',
   },
   {
     id: '7',
     name: 'Ольга Кузнецова',
     email: 'olga@example.com',
-    phone: '+7 (999) 789-01-23'
+    phone: '+7 (999) 789-01-23',
   },
   {
     id: '8',
     name: 'Сергей Попов',
     email: 'sergey@example.com',
-    phone: '+7 (999) 890-12-34'
-  }
-]
+    phone: '+7 (999) 890-12-34',
+  },
+];
 
 /**
  * Modal window for viewing and managing group members.
  */
 export default function GroupMembersModal({ isOpen, onClose, group }: GroupMembersModalProps) {
-  const [members, setMembers] = useState<Member[]>(mockMembers)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [showAddMembers, setShowAddMembers] = useState(false)
-  const [selectedMembers, setSelectedMembers] = useState<string[]>([])
+  const [members, setMembers] = useState<Member[]>(mockMembers);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showAddMembers, setShowAddMembers] = useState(false);
+  const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
 
-  const filteredMembers = members.filter(member =>
-    member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    member.email.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const filteredMembers = members.filter(
+    (member) =>
+      member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      member.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-  const availableFilteredMembers = availableMembers.filter(member =>
-    !members.some(m => m.id === member.id) &&
-    (member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     member.email.toLowerCase().includes(searchTerm.toLowerCase()))
-  )
+  const availableFilteredMembers = availableMembers.filter(
+    (member) =>
+      !members.some((m) => m.id === member.id) &&
+      (member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        member.email.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
 
   const handleRemoveMember = (memberId: string) => {
-    setMembers(prev => prev.filter(member => member.id !== memberId))
-  }
+    setMembers((prev) => prev.filter((member) => member.id !== memberId));
+  };
 
   const handleToggleMemberStatus = (memberId: string) => {
-    setMembers(prev => prev.map(member => 
-      member.id === memberId 
-        ? { ...member, status: member.status === 'active' ? 'inactive' : 'active' }
-        : member
-    ))
-  }
+    setMembers((prev) =>
+      prev.map((member) =>
+        member.id === memberId
+          ? { ...member, status: member.status === 'active' ? 'inactive' : 'active' }
+          : member
+      )
+    );
+  };
 
   const handleSelectMember = (memberId: string) => {
-    setSelectedMembers(prev => 
-      prev.includes(memberId) 
-        ? prev.filter(id => id !== memberId)
-        : [...prev, memberId]
-    )
-  }
+    setSelectedMembers((prev) =>
+      prev.includes(memberId) ? prev.filter((id) => id !== memberId) : [...prev, memberId]
+    );
+  };
 
   const handleAddSelectedMembers = () => {
     const newMembers = availableMembers
-      .filter(member => selectedMembers.includes(member.id))
-      .map(member => ({
+      .filter((member) => selectedMembers.includes(member.id))
+      .map((member) => ({
         ...member,
         status: 'active' as const,
         joinDate: new Date().toISOString().split('T')[0],
-        role: 'member' as const
-      }))
+        role: 'member' as const,
+      }));
 
-    setMembers(prev => [...prev, ...newMembers])
-    setSelectedMembers([])
-    setShowAddMembers(false)
-  }
+    setMembers((prev) => [...prev, ...newMembers]);
+    setSelectedMembers([]);
+    setShowAddMembers(false);
+  };
 
   const getRoleLabel = (role: string) => {
     switch (role) {
-      case 'leader': return 'Лидер'
-      case 'assistant': return 'Помощник'
-      case 'member': return 'Участник'
-      default: return 'Участник'
+      case 'leader':
+        return 'Лидер';
+      case 'assistant':
+        return 'Помощник';
+      case 'member':
+        return 'Участник';
+      default:
+        return 'Участник';
     }
-  }
+  };
 
   const getRoleColor = (role: string) => {
     switch (role) {
-      case 'leader': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-      case 'assistant': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-      case 'member': return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+      case 'leader':
+        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+      case 'assistant':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+      case 'member':
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
     }
-  }
+  };
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -201,10 +211,7 @@ export default function GroupMembersModal({ isOpen, onClose, group }: GroupMembe
                 className="input pl-10 w-full"
               />
             </div>
-            <button
-              onClick={() => setShowAddMembers(!showAddMembers)}
-              className="btn btn-primary"
-            >
+            <button onClick={() => setShowAddMembers(!showAddMembers)} className="btn btn-primary">
               <Plus className="mr-2 h-4 w-4" />
               Добавить участников
             </button>
@@ -245,17 +252,14 @@ export default function GroupMembersModal({ isOpen, onClose, group }: GroupMembe
                 <div className="mt-4 flex justify-end space-x-3">
                   <button
                     onClick={() => {
-                      setSelectedMembers([])
-                      setShowAddMembers(false)
+                      setSelectedMembers([]);
+                      setShowAddMembers(false);
                     }}
                     className="btn btn-secondary"
                   >
                     Отмена
                   </button>
-                  <button
-                    onClick={handleAddSelectedMembers}
-                    className="btn btn-primary"
-                  >
+                  <button onClick={handleAddSelectedMembers} className="btn btn-primary">
                     Добавить выбранных ({selectedMembers.length})
                   </button>
                 </div>
@@ -278,17 +282,19 @@ export default function GroupMembersModal({ isOpen, onClose, group }: GroupMembe
                   </div>
                   <div>
                     <div className="flex items-center space-x-2">
-                      <p className="font-medium text-gray-900 dark:text-gray-100">
-                        {member.name}
-                      </p>
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(member.role)}`}>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">{member.name}</p>
+                      <span
+                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(member.role)}`}
+                      >
                         {getRoleLabel(member.role)}
                       </span>
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        member.status === 'active'
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                          : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
-                      }`}>
+                      <span
+                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          member.status === 'active'
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                            : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+                        }`}
+                      >
                         {member.status === 'active' ? 'Активен' : 'Неактивен'}
                       </span>
                     </div>
@@ -344,5 +350,5 @@ export default function GroupMembersModal({ isOpen, onClose, group }: GroupMembe
         </div>
       </div>
     </div>
-  )
+  );
 }

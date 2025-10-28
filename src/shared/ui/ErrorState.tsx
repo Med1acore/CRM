@@ -6,11 +6,7 @@ interface ErrorStateProps {
   retry?: () => void;
 }
 
-export const ErrorState = ({
-  title = 'Ошибка',
-  message,
-  retry,
-}: ErrorStateProps) => {
+export const ErrorState = ({ title = 'Ошибка', message, retry }: ErrorStateProps) => {
   return (
     <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
       <div className="rounded-full bg-destructive/10 p-6 mb-4">
@@ -29,4 +25,3 @@ export const ErrorState = ({
     </div>
   );
 };
-

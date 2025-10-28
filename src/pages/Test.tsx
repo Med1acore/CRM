@@ -1,4 +1,4 @@
-import { SupabaseTest } from '../components/SupabaseTest'
+import { SupabaseTest } from '../components/SupabaseTest';
 
 export default function Test() {
   return (
@@ -8,9 +8,7 @@ export default function Test() {
           <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             🎉 ChurchCRM Genesis
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-400 mb-8">
-            Система успешно запущена!
-          </p>
+          <p className="text-xl text-gray-600 dark:text-gray-400 mb-8">Система успешно запущена!</p>
         </div>
 
         {/* Тест подключения к Supabase */}
@@ -24,11 +22,15 @@ export default function Test() {
             Тестовые данные для входа:
           </h2>
           <div className="text-left space-y-2 mb-4">
-            <p><strong>Email:</strong> admin@test.com</p>
-            <p><strong>Пароль:</strong> password</p>
+            <p>
+              <strong>Email:</strong> admin@test.com
+            </p>
+            <p>
+              <strong>Пароль:</strong> password
+            </p>
           </div>
-          <button 
-            onClick={() => window.location.href = '/login'}
+          <button
+            onClick={() => (window.location.href = '/login')}
             className="bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition-colors"
           >
             Перейти к входу
@@ -36,5 +38,5 @@ export default function Test() {
         </div>
       </div>
     </div>
-  )
+  );
 }

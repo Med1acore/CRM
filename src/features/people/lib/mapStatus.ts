@@ -1,5 +1,5 @@
-import type { UserStatus } from '../types/user'
-import type { PersonStatus } from '@/types/person'
+import type { UserStatus } from '../types/user';
+import type { PersonStatus } from '@/types/person';
 
 const statusMap: Record<UserStatus, PersonStatus> = {
   guest: 'guest',
@@ -7,10 +7,10 @@ const statusMap: Record<UserStatus, PersonStatus> = {
   active_member: 'active',
   minister: 'leader',
   left: 'guest',
-}
+};
 
 export function mapUserToPersonStatus(status: UserStatus): PersonStatus {
-  return statusMap[status] ?? 'guest'
+  return statusMap[status] ?? 'guest';
 }
 
 export function formatStatusLabel(status: UserStatus): string {
@@ -20,7 +20,6 @@ export function formatStatusLabel(status: UserStatus): string {
     active_member: 'Активный участник',
     minister: 'Служитель',
     left: 'Покинувший',
-  }
-  return labels[status]
+  };
+  return labels[status];
 }
-

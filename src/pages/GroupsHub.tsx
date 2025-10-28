@@ -1,19 +1,19 @@
-import { useState, useEffect } from 'react'
-import { Plus, Search, Users, Calendar, MapPin, Settings, BarChart3, Trash2 } from 'lucide-react'
-import { AddGroupModal, GroupMembersModal } from '../components/modals'
-import toast from 'react-hot-toast'
+import { useState, useEffect } from 'react';
+import { Plus, Search, Users, Calendar, MapPin, Settings, BarChart3, Trash2 } from 'lucide-react';
+import { AddGroupModal, GroupMembersModal } from '../components/modals';
+import toast from 'react-hot-toast';
 
 interface Group {
-  id: string
-  name: string
-  description: string
-  leader: string
-  members_count: number
-  maxMembers: number
-  schedule: string
-  location: string
-  status: 'active' | 'inactive'
-  createdAt: string
+  id: string;
+  name: string;
+  description: string;
+  leader: string;
+  members_count: number;
+  maxMembers: number;
+  schedule: string;
+  location: string;
+  status: 'active' | 'inactive';
+  createdAt: string;
 }
 
 const initialGroups: Group[] = [
@@ -27,7 +27,7 @@ const initialGroups: Group[] = [
     schedule: 'Воскресенье, 19:00',
     location: 'Зал молодежи',
     status: 'active',
-    createdAt: '2024-01-15'
+    createdAt: '2024-01-15',
   },
   {
     id: '2',
@@ -39,7 +39,7 @@ const initialGroups: Group[] = [
     schedule: 'Суббота, 16:00',
     location: 'Малый зал',
     status: 'active',
-    createdAt: '2024-02-20'
+    createdAt: '2024-02-20',
   },
   {
     id: '3',
@@ -51,35 +51,36 @@ const initialGroups: Group[] = [
     schedule: 'Воскресенье, 11:00',
     location: 'Детский зал',
     status: 'active',
-    createdAt: '2024-03-10'
+    createdAt: '2024-03-10',
   },
-]
+];
 
 export default function GroupsHub() {
-  const [searchTerm, setSearchTerm] = useState('')
-  const [groups, setGroups] = useState<Group[]>(initialGroups)
-  const [showAddModal, setShowAddModal] = useState(false)
-  const [showMembersModal, setShowMembersModal] = useState(false)
-  const [selectedGroup, setSelectedGroup] = useState<Group | null>(null)
+  const [searchTerm, setSearchTerm] = useState('');
+  const [groups, setGroups] = useState<Group[]>(initialGroups);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showMembersModal, setShowMembersModal] = useState(false);
+  const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
 
   // Загружаем данные из localStorage при инициализации
   useEffect(() => {
-    const savedGroups = localStorage.getItem('church-groups')
+    const savedGroups = localStorage.getItem('church-groups');
     if (savedGroups) {
-      setGroups(JSON.parse(savedGroups))
+      setGroups(JSON.parse(savedGroups));
     }
-  }, [])
+  }, []);
 
   // Сохраняем данные в localStorage при изменении
   useEffect(() => {
-    localStorage.setItem('church-groups', JSON.stringify(groups))
-  }, [groups])
+    localStorage.setItem('church-groups', JSON.stringify(groups));
+  }, [groups]);
 
-  const filteredGroups = groups.filter(group =>
-    group.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    group.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    group.leader.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const filteredGroups = groups.filter(
+    (group) =>
+      group.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      group.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      group.leader.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const handleAddGroup = (groupData: any) => {
     const newGroup: Group = {
@@ -87,48 +88,45 @@ export default function GroupsHub() {
       ...groupData,
       members_count: 0,
       status: 'active',
-      createdAt: new Date().toISOString().split('T')[0]
-    }
-    setGroups(prev => [...prev, newGroup])
-    toast.success('Группа успешно создана!')
-  }
+      createdAt: new Date().toISOString().split('T')[0],
+    };
+    setGroups((prev) => [...prev, newGroup]);
+    toast.success('Группа успешно создана!');
+  };
 
   const handleDeleteGroup = (groupId: string) => {
     if (window.confirm('Вы уверены, что хотите удалить эту группу?')) {
-      setGroups(prev => prev.filter(group => group.id !== groupId))
-      toast.success('Группа удалена!')
+      setGroups((prev) => prev.filter((group) => group.id !== groupId));
+      toast.success('Группа удалена!');
     }
-  }
+  };
 
   const handleToggleGroupStatus = (groupId: string) => {
-    setGroups(prev => prev.map(group => 
-      group.id === groupId 
-        ? { ...group, status: group.status === 'active' ? 'inactive' : 'active' }
-        : group
-    ))
-    toast.success('Статус группы изменен!')
-  }
+    setGroups((prev) =>
+      prev.map((group) =>
+        group.id === groupId
+          ? { ...group, status: group.status === 'active' ? 'inactive' : 'active' }
+          : group
+      )
+    );
+    toast.success('Статус группы изменен!');
+  };
 
   const handleManageMembers = (group: Group) => {
-    setSelectedGroup(group)
-    setShowMembersModal(true)
-  }
+    setSelectedGroup(group);
+    setShowMembersModal(true);
+  };
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-            Группы и служения
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Группы и служения</h1>
           <p className="mt-2 text-gray-600 dark:text-gray-400">
             Управление малыми группами и служениями
           </p>
         </div>
-        <button 
-          onClick={() => setShowAddModal(true)}
-          className="btn btn-primary"
-        >
+        <button onClick={() => setShowAddModal(true)} className="btn btn-primary">
           <Plus className="mr-2 h-4 w-4" />
           Создать группу
         </button>
@@ -157,15 +155,15 @@ export default function GroupsHub() {
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
                   {group.name}
                 </h3>
-                <p className="mt-2 text-gray-600 dark:text-gray-400">
-                  {group.description}
-                </p>
+                <p className="mt-2 text-gray-600 dark:text-gray-400">{group.description}</p>
               </div>
-              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                group.status === 'active' 
-                  ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                  : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
-              }`}>
+              <span
+                className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                  group.status === 'active'
+                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                    : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+                }`}
+              >
                 {group.status === 'active' ? 'Активна' : 'Неактивна'}
               </span>
             </div>
@@ -175,23 +173,25 @@ export default function GroupsHub() {
                 <Users className="mr-2 h-4 w-4" />
                 <span>Лидер: {group.leader}</span>
               </div>
-              
+
               <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
                 <Users className="mr-2 h-4 w-4" />
-                <span>Участников: {group.members_count}/{group.maxMembers}</span>
+                <span>
+                  Участников: {group.members_count}/{group.maxMembers}
+                </span>
                 <div className="ml-2 flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                  <div 
-                    className="bg-primary-600 h-2 rounded-full" 
+                  <div
+                    className="bg-primary-600 h-2 rounded-full"
                     style={{ width: `${(group.members_count / group.maxMembers) * 100}%` }}
                   ></div>
                 </div>
               </div>
-              
+
               <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
                 <Calendar className="mr-2 h-4 w-4" />
                 <span>{group.schedule}</span>
               </div>
-              
+
               <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
                 <MapPin className="mr-2 h-4 w-4" />
                 <span>{group.location}</span>
@@ -199,26 +199,20 @@ export default function GroupsHub() {
             </div>
 
             <div className="mt-6 flex space-x-2">
-              <button 
-                onClick={() => handleManageMembers(group)}
-                className="btn btn-primary flex-1"
-              >
+              <button onClick={() => handleManageMembers(group)} className="btn btn-primary flex-1">
                 <Settings className="mr-1 h-4 w-4" />
                 Управление
               </button>
               <button className="btn btn-secondary">
                 <BarChart3 className="h-4 w-4" />
               </button>
-              <button 
+              <button
                 onClick={() => handleToggleGroupStatus(group.id)}
                 className={`btn ${group.status === 'active' ? 'btn-warning' : 'btn-success'}`}
               >
                 {group.status === 'active' ? 'Деактивировать' : 'Активировать'}
               </button>
-              <button 
-                onClick={() => handleDeleteGroup(group.id)}
-                className="btn btn-danger"
-              >
+              <button onClick={() => handleDeleteGroup(group.id)} className="btn btn-danger">
                 <Trash2 className="h-4 w-4" />
               </button>
             </div>
@@ -249,12 +243,12 @@ export default function GroupsHub() {
         <GroupMembersModal
           isOpen={showMembersModal}
           onClose={() => {
-            setShowMembersModal(false)
-            setSelectedGroup(null)
+            setShowMembersModal(false);
+            setSelectedGroup(null);
           }}
           group={selectedGroup}
         />
       )}
     </div>
-  )
+  );
 }

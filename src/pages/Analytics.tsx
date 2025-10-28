@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react'
-import { ResponsiveContainer, BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts'
-import { EngagementPie, EngagementFunnelLine } from '../components'
-import { TrendingUp, Users, Calendar, MessageSquare, Eye } from 'lucide-react'
+import { useState, useEffect } from 'react';
+import { ResponsiveContainer, BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
+import { EngagementPie, EngagementFunnelLine } from '../components';
+import { TrendingUp, Users, Calendar, MessageSquare, Eye } from 'lucide-react';
 
 const attendanceData = [
   { month: 'Янв', adults: 120, children: 45, guests: 15 },
@@ -10,7 +10,7 @@ const attendanceData = [
   { month: 'Апр', adults: 138, children: 55, guests: 20 },
   { month: 'Май', adults: 155, children: 62, guests: 25 },
   { month: 'Июн', adults: 148, children: 58, guests: 28 },
-]
+];
 
 const membershipData = [
   { month: 'Янв', total: 180, new: 8 },
@@ -19,13 +19,13 @@ const membershipData = [
   { month: 'Апр', total: 202, new: 15 },
   { month: 'Май', total: 215, new: 18 },
   { month: 'Июн', total: 228, new: 16 },
-]
+];
 
-  const engagementPie = [
+const engagementPie = [
   { id: 'Гости', value: 45 },
   { id: 'Новые участники', value: 32 },
   { id: 'Активные участники', value: 28 },
-]
+];
 
 const insights = [
   {
@@ -37,7 +37,8 @@ const insights = [
   {
     type: 'success',
     title: 'Рост новых участников',
-    description: 'В этом месяце присоединилось на 20% больше новых участников по сравнению с прошлым месяцем',
+    description:
+      'В этом месяце присоединилось на 20% больше новых участников по сравнению с прошлым месяцем',
     suggestion: 'Отличная работа! Продолжайте привлекать новых людей через существующие программы',
   },
   {
@@ -46,13 +47,13 @@ const insights = [
     description: 'Средняя посещаемость малых групп составляет 85%, что выше целевого показателя',
     suggestion: 'Рассмотрите возможность создания дополнительных групп для новых участников',
   },
-]
+];
 
 /**
  * Analytics dashboard with charts, metrics and insights.
  */
 export default function Analytics() {
-  const [selectedPeriod, setSelectedPeriod] = useState('6months')
+  const [selectedPeriod, setSelectedPeriod] = useState('6months');
   const [analyticsData, setAnalyticsData] = useState({
     totalAttendance: 228,
     newMembers: 16,
@@ -61,25 +62,25 @@ export default function Analytics() {
     attendanceGrowth: 12,
     membershipGrowth: 8,
     eventsGrowth: 3,
-    messagesGrowth: 15
-  })
+    messagesGrowth: 15,
+  });
 
   // Загружаем данные из localStorage и вычисляем реальную аналитику
   useEffect(() => {
-    const messages = JSON.parse(localStorage.getItem('church-messages') || '[]')
-    const people = JSON.parse(localStorage.getItem('church-people') || '[]')
-    const events = JSON.parse(localStorage.getItem('church-events') || '[]')
+    const messages = JSON.parse(localStorage.getItem('church-messages') || '[]');
+    const people = JSON.parse(localStorage.getItem('church-people') || '[]');
+    const events = JSON.parse(localStorage.getItem('church-events') || '[]');
 
     // Вычисляем реальные метрики
-    const totalMembers = people.length
+    const totalMembers = people.length;
     const newMembersThisMonth = people.filter((person: any) => {
-      const joinDate = new Date(person.joinDate || person.createdAt)
-      const now = new Date()
-      const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate())
-      return joinDate >= monthAgo
-    }).length
+      const joinDate = new Date(person.joinDate || person.createdAt);
+      const now = new Date();
+      const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+      return joinDate >= monthAgo;
+    }).length;
 
-    const sentMessages = messages.filter((msg: any) => msg.status === 'sent').length
+    const sentMessages = messages.filter((msg: any) => msg.status === 'sent').length;
 
     setAnalyticsData({
       totalAttendance: totalMembers,
@@ -89,46 +90,42 @@ export default function Analytics() {
       attendanceGrowth: Math.floor(Math.random() * 20) + 5, // Имитация роста
       membershipGrowth: Math.floor(Math.random() * 15) + 3,
       eventsGrowth: Math.floor(Math.random() * 10) + 1,
-      messagesGrowth: Math.floor(Math.random() * 25) + 5
-    })
-  }, [])
+      messagesGrowth: Math.floor(Math.random() * 25) + 5,
+    });
+  }, []);
 
   const getInsightIcon = (type: string) => {
     switch (type) {
       case 'warning':
-        return '⚠️'
+        return '⚠️';
       case 'success':
-        return '✅'
+        return '✅';
       case 'info':
-        return 'ℹ️'
+        return 'ℹ️';
       default:
-        return '📊'
+        return '📊';
     }
-  }
+  };
 
   const getInsightColor = (type: string) => {
     switch (type) {
       case 'warning':
-        return 'border-yellow-400/30 bg-yellow-500/20'
+        return 'border-yellow-400/30 bg-yellow-500/20';
       case 'success':
-        return 'border-green-400/30 bg-green-500/20'
+        return 'border-green-400/30 bg-green-500/20';
       case 'info':
-        return 'border-blue-400/30 bg-blue-500/20'
+        return 'border-blue-400/30 bg-blue-500/20';
       default:
-        return 'border-white/20 bg-white/10'
+        return 'border-white/20 bg-white/10';
     }
-  }
+  };
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-white">
-            Аналитика и инсайты
-          </h1>
-          <p className="mt-2 text-white/80">
-            Визуализация данных и аналитические отчеты
-          </p>
+          <h1 className="text-3xl font-bold text-white">Аналитика и инсайты</h1>
+          <p className="mt-2 text-white/80">Визуализация данных и аналитические отчеты</p>
         </div>
         <div className="flex items-center space-x-4">
           <select
@@ -156,12 +153,8 @@ export default function Analytics() {
               <Users className="h-8 w-8 text-blue-400" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-white/70">
-                Общая посещаемость
-              </p>
-              <p className="text-2xl font-semibold text-white">
-                {analyticsData.totalAttendance}
-              </p>
+              <p className="text-sm font-medium text-white/70">Общая посещаемость</p>
+              <p className="text-2xl font-semibold text-white">{analyticsData.totalAttendance}</p>
               <p className="text-sm text-green-400">+{analyticsData.attendanceGrowth}% за месяц</p>
             </div>
           </div>
@@ -173,12 +166,8 @@ export default function Analytics() {
               <TrendingUp className="h-8 w-8 text-green-400" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-white/70">
-                Рост участников
-              </p>
-              <p className="text-2xl font-semibold text-white">
-                {analyticsData.newMembers}
-              </p>
+              <p className="text-sm font-medium text-white/70">Рост участников</p>
+              <p className="text-2xl font-semibold text-white">{analyticsData.newMembers}</p>
               <p className="text-sm text-green-400">+{analyticsData.membershipGrowth}% за месяц</p>
             </div>
           </div>
@@ -190,12 +179,8 @@ export default function Analytics() {
               <Calendar className="h-8 w-8 text-blue-400" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-white/70">
-                Активные события
-              </p>
-              <p className="text-2xl font-semibold text-white">
-                {analyticsData.activeEvents}
-              </p>
+              <p className="text-sm font-medium text-white/70">Активные события</p>
+              <p className="text-2xl font-semibold text-white">{analyticsData.activeEvents}</p>
               <p className="text-sm text-blue-400">+{analyticsData.eventsGrowth} за месяц</p>
             </div>
           </div>
@@ -207,12 +192,8 @@ export default function Analytics() {
               <MessageSquare className="h-8 w-8 text-purple-400" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-white/70">
-                Отправлено сообщений
-              </p>
-              <p className="text-2xl font-semibold text-white">
-                {analyticsData.sentMessages}
-              </p>
+              <p className="text-sm font-medium text-white/70">Отправлено сообщений</p>
+              <p className="text-2xl font-semibold text-white">{analyticsData.sentMessages}</p>
               <p className="text-sm text-purple-400">+{analyticsData.messagesGrowth} за месяц</p>
             </div>
           </div>
@@ -224,18 +205,18 @@ export default function Analytics() {
         {/* Attendance Trend */}
         <div className="card p-6 flex flex-col h-full">
           <h3 className="text-lg font-semibold text-white mb-4">Динамика посещаемости</h3>
-          <EngagementFunnelLine data={[
-            { id: 'Взрослые', data: attendanceData.map(d => ({ x: d.month, y: d.adults })) },
-            { id: 'Дети', data: attendanceData.map(d => ({ x: d.month, y: d.children })) },
-            { id: 'Гости', data: attendanceData.map(d => ({ x: d.month, y: d.guests })) }
-          ]} />
+          <EngagementFunnelLine
+            data={[
+              { id: 'Взрослые', data: attendanceData.map((d) => ({ x: d.month, y: d.adults })) },
+              { id: 'Дети', data: attendanceData.map((d) => ({ x: d.month, y: d.children })) },
+              { id: 'Гости', data: attendanceData.map((d) => ({ x: d.month, y: d.guests })) },
+            ]}
+          />
         </div>
 
         {/* Membership Growth */}
         <div className="card p-6 flex flex-col h-full">
-          <h3 className="text-lg font-semibold text-white mb-4">
-            Рост численности
-          </h3>
+          <h3 className="text-lg font-semibold text-white mb-4">Рост численности</h3>
           <div className="flex-1">
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={membershipData}>
@@ -260,9 +241,7 @@ export default function Analytics() {
 
         {/* Smart Insights */}
         <div className="card p-6 flex flex-col h-full">
-          <h3 className="text-lg font-semibold text-white mb-4">
-            Умные подсказки
-          </h3>
+          <h3 className="text-lg font-semibold text-white mb-4">Умные подсказки</h3>
           <div className="flex-1 space-y-4">
             {insights.map((insight, index) => (
               <div
@@ -272,12 +251,8 @@ export default function Analytics() {
                 <div className="flex items-start">
                   <span className="text-lg mr-3">{getInsightIcon(insight.type)}</span>
                   <div className="flex-1">
-                    <h4 className="font-medium text-white">
-                      {insight.title}
-                    </h4>
-                    <p className="mt-1 text-sm text-white/80">
-                      {insight.description}
-                    </p>
+                    <h4 className="font-medium text-white">{insight.title}</h4>
+                    <p className="mt-1 text-sm text-white/80">{insight.description}</p>
                     <p className="mt-2 text-sm font-medium text-white/90">
                       💡 {insight.suggestion}
                     </p>
@@ -289,5 +264,5 @@ export default function Analytics() {
         </div>
       </div>
     </div>
-  )
+  );
 }

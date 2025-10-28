@@ -22,4 +22,3 @@ export const LoadingSkeleton = ({ rows = 3 }: { rows?: number }) => {
     </div>
   );
 };
-

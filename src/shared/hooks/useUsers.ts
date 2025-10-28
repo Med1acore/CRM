@@ -67,4 +67,3 @@ export const useUsersByStatus = (status: User['status']) => {
     queryFn: () => usersRepository.getByStatus(status),
   });
 };
-
