@@ -1,10 +1,48 @@
-# Папка с зависимостями
+# Dependencies
 node_modules
+.pnp
+.pnp.js
 
-# Папка со сборкой проекта
+# Build output
 dist
 build
+*.local
 
-# Другие системные файлы (на всякий случай)
+# Environment files
 .env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Supabase local
+.supabase
+
+# Test coverage
+coverage
+*.lcov
+.nyc_output

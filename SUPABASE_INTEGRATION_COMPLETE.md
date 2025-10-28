@@ -126,3 +126,8 @@ SUPABASE_INTEGRATION_COMPLETE.md  # Этот файл
 ---
 
 **ChurchCRM Genesis** - Современное решение для управления церковным сообществом.
+
+
+
+
+
