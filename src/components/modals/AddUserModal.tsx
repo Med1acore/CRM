@@ -1,58 +1,71 @@
-import { useState, useEffect } from 'react'
-import { X, User, Mail, Phone, Calendar, Tag } from 'lucide-react'
-import toast from 'react-hot-toast'
+import { useState, useEffect } from 'react';
+import { X, User, Mail, Phone, Calendar, Tag } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 interface AddUserModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onAddUser?: (user: any) => void
-  mode?: 'add' | 'edit'
-  initialUser?: any | null
-  onSaveEdit?: (user: any) => void
+  isOpen: boolean;
+  onClose: () => void;
+  onAddUser?: (user: any) => void;
+  mode?: 'add' | 'edit';
+  initialUser?: any | null;
+  onSaveEdit?: (user: any) => void;
 }
 
-export default function AddUserModal({ isOpen, onClose, onAddUser, mode = 'add', initialUser = null, onSaveEdit }: AddUserModalProps) {
+export default function AddUserModal({
+  isOpen,
+  onClose,
+  onAddUser,
+  mode = 'add',
+  initialUser = null,
+  onSaveEdit,
+}: AddUserModalProps) {
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
     phone: '',
     date_of_birth: '',
     status: 'guest',
-    tags: ''
-  })
+    tags: '',
+  });
 
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+    e.preventDefault();
+    setIsLoading(true);
 
     try {
       // Симуляция API запроса
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       if (mode === 'edit' && initialUser) {
         const updatedUser = {
           ...initialUser,
           ...formData,
-          tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean),
-          updated_at: new Date().toISOString()
-        }
-        onSaveEdit && onSaveEdit(updatedUser)
-        toast.success('Изменения сохранены')
+          tags: formData.tags
+            .split(',')
+            .map((tag) => tag.trim())
+            .filter(Boolean),
+          updated_at: new Date().toISOString(),
+        };
+        onSaveEdit && onSaveEdit(updatedUser);
+        toast.success('Изменения сохранены');
       } else {
         const newUser = {
           id: Date.now().toString(),
           ...formData,
-          tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean),
+          tags: formData.tags
+            .split(',')
+            .map((tag) => tag.trim())
+            .filter(Boolean),
           created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }
-        onAddUser && onAddUser(newUser)
-        toast.success('Пользователь успешно добавлен!')
+          updated_at: new Date().toISOString(),
+        };
+        onAddUser && onAddUser(newUser);
+        toast.success('Пользователь успешно добавлен!');
       }
-      onClose()
-      
+      onClose();
+
       // Сброс формы
       setFormData({
         full_name: '',
@@ -60,14 +73,14 @@ export default function AddUserModal({ isOpen, onClose, onAddUser, mode = 'add',
         phone: '',
         date_of_birth: '',
         status: 'guest',
-        tags: ''
-      })
+        tags: '',
+      });
     } catch (error) {
-      toast.error('Ошибка при добавлении пользователя')
+      toast.error('Ошибка при добавлении пользователя');
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   // Проставляем данные при открытии в режиме редактирования
   useEffect(() => {
@@ -78,18 +91,20 @@ export default function AddUserModal({ isOpen, onClose, onAddUser, mode = 'add',
         phone: initialUser.phone || '',
         date_of_birth: initialUser.date_of_birth || '',
         status: initialUser.status || 'guest',
-        tags: Array.isArray(initialUser.tags) ? initialUser.tags.join(', ') : (initialUser.tags || '')
-      })
+        tags: Array.isArray(initialUser.tags)
+          ? initialUser.tags.join(', ')
+          : initialUser.tags || '',
+      });
     }
-  }, [isOpen, mode, initialUser])
+  }, [isOpen, mode, initialUser]);
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex min-h-screen items-center justify-center p-4">
         <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={onClose} />
-        
+
         <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full">
           <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
@@ -202,24 +217,22 @@ export default function AddUserModal({ isOpen, onClose, onAddUser, mode = 'add',
             </div>
 
             <div className="flex space-x-3 pt-4">
-              <button
-                type="button"
-                onClick={onClose}
-                className="btn btn-secondary flex-1"
-              >
+              <button type="button" onClick={onClose} className="btn btn-secondary flex-1">
                 Отмена
               </button>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="btn btn-primary flex-1"
-              >
-                {isLoading ? (mode === 'edit' ? 'Сохранение...' : 'Добавление...') : (mode === 'edit' ? 'Сохранить' : 'Добавить')}
+              <button type="submit" disabled={isLoading} className="btn btn-primary flex-1">
+                {isLoading
+                  ? mode === 'edit'
+                    ? 'Сохранение...'
+                    : 'Добавление...'
+                  : mode === 'edit'
+                    ? 'Сохранить'
+                    : 'Добавить'}
               </button>
             </div>
           </form>
         </div>
       </div>
     </div>
-  )
+  );
 }

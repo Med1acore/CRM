@@ -169,3 +169,8 @@ FOR ALL USING (is_admin());
 
 CREATE POLICY "Admins can manage all messages" ON messages 
 FOR ALL USING (is_admin());
+
+
+
+
+

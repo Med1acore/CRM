@@ -1,34 +1,34 @@
-import { useState } from 'react'
-import { Navigate } from 'react-router-dom'
-import { useAuth } from '../contexts/AuthContext'
-import { Eye, EyeOff, Mail, Lock } from 'lucide-react'
-import toast from 'react-hot-toast'
-import { Spotlight, AnimatedButton } from '../components'
+import { useState } from 'react';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { Spotlight, AnimatedButton } from '../components';
 
 export default function Login() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const { user, signIn } = useAuth()
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { user, signIn } = useAuth();
 
   if (user) {
-    return <Navigate to="/" replace />
+    return <Navigate to="/" replace />;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+    e.preventDefault();
+    setIsLoading(true);
 
     try {
-      await signIn(email, password)
-      toast.success('Успешный вход в систему!')
+      await signIn(email, password);
+      toast.success('Успешный вход в систему!');
     } catch (error: any) {
-      toast.error(error.message || 'Ошибка входа')
+      toast.error(error.message || 'Ошибка входа');
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center py-4 px-4 sm:py-12 sm:px-6 lg:px-8 relative overflow-hidden bg-black/[0.96] antialiased bg-grid-white/[0.02]">
@@ -49,13 +49,13 @@ export default function Login() {
         <div className="text-center">
           {/* Логотип в центре */}
           <div className="mx-auto mb-4 sm:mb-6">
-            <img 
-              src="./logo.webp" 
-              alt="Father's Home Church Logo" 
+            <img
+              src="./logo.webp"
+              alt="Father's Home Church Logo"
               className="h-16 w-16 sm:h-20 sm:w-20 lg:h-24 lg:w-24 mx-auto rounded-full object-cover shadow-lg"
             />
           </div>
-          
+
           {/* Название под логотипом */}
           <div className="mb-4 sm:mb-6">
             <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-center text-white uppercase tracking-wide font-clash">
@@ -65,16 +65,19 @@ export default function Login() {
               CHURCH
             </h2>
           </div>
-          
+
           <p className="mb-6 sm:mb-8 text-center text-xs sm:text-sm text-blue-200 max-w-lg mx-auto">
             Войдите в систему управления церковью
           </p>
         </div>
-        
+
         <form className="mt-6 sm:mt-8 space-y-4 sm:space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-3 sm:space-y-4">
             <div>
-              <label htmlFor="email" className="block text-xs sm:text-sm font-medium text-blue-200 mb-1 sm:mb-2">
+              <label
+                htmlFor="email"
+                className="block text-xs sm:text-sm font-medium text-blue-200 mb-1 sm:mb-2"
+              >
                 Email адрес
               </label>
               <div className="relative">
@@ -94,9 +97,12 @@ export default function Login() {
                 />
               </div>
             </div>
-            
+
             <div>
-              <label htmlFor="password" className="block text-xs sm:text-sm font-medium text-blue-200 mb-1 sm:mb-2">
+              <label
+                htmlFor="password"
+                className="block text-xs sm:text-sm font-medium text-blue-200 mb-1 sm:mb-2"
+              >
                 Пароль
               </label>
               <div className="relative">
@@ -130,18 +136,13 @@ export default function Login() {
           </div>
 
           <div>
-            <AnimatedButton
-              type="submit"
-              disabled={isLoading}
-            >
+            <AnimatedButton type="submit" disabled={isLoading}>
               {isLoading ? 'Вход...' : 'Войти в систему'}
             </AnimatedButton>
           </div>
-          
+
           <div className="text-center">
-            <p className="text-xs text-blue-200 mb-1 sm:mb-2">
-              Тестовые данные:
-            </p>
+            <p className="text-xs text-blue-200 mb-1 sm:mb-2">Тестовые данные:</p>
             <p className="text-xs text-blue-200 leading-tight">
               admin@test.com / password (Администратор)
             </p>
@@ -155,5 +156,5 @@ export default function Login() {
         </form>
       </div>
     </div>
-  )
+  );
 }

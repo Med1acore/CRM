@@ -1,23 +1,23 @@
-import { useState } from 'react'
-import { X, Send, Users, Calendar, Bot, FileText } from 'lucide-react'
+import { useState } from 'react';
+import { X, Send, Users, Calendar, Bot, FileText } from 'lucide-react';
 
 interface CreateMessageModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onSave: (message: MessageData) => void
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (message: MessageData) => void;
 }
 
 interface MessageData {
-  title: string
-  content: string
-  recipients: string[]
-  type: 'newsletter' | 'reminder' | 'invitation' | 'announcement'
-  scheduleType: 'now' | 'scheduled'
-  scheduledDate?: string
-  scheduledTime?: string
+  title: string;
+  content: string;
+  recipients: string[];
+  type: 'newsletter' | 'reminder' | 'invitation' | 'announcement';
+  scheduleType: 'now' | 'scheduled';
+  scheduledDate?: string;
+  scheduledTime?: string;
 }
 
-type MessageErrors = Partial<Record<keyof MessageData, string>>
+type MessageErrors = Partial<Record<keyof MessageData, string>>;
 
 const recipientGroups = [
   { id: 'all', name: 'Все участники', count: 156 },
@@ -25,15 +25,15 @@ const recipientGroups = [
   { id: 'youth', name: 'Молодежное служение', count: 23 },
   { id: 'families', name: 'Семейные группы', count: 45 },
   { id: 'children', name: 'Детское служение', count: 32 },
-  { id: 'newcomers', name: 'Новые участники', count: 12 }
-]
+  { id: 'newcomers', name: 'Новые участники', count: 12 },
+];
 
 const messageTypes = [
   { id: 'newsletter', name: 'Еженедельные новости', icon: FileText },
   { id: 'reminder', name: 'Напоминание', icon: Calendar },
   { id: 'invitation', name: 'Приглашение', icon: Users },
-  { id: 'announcement', name: 'Объявление', icon: Send }
-]
+  { id: 'announcement', name: 'Объявление', icon: Send },
+];
 
 /**
  * Modal for composing or scheduling broadcast messages.
@@ -44,31 +44,31 @@ export default function CreateMessageModal({ isOpen, onClose, onSave }: CreateMe
     content: '',
     recipients: [],
     type: 'newsletter',
-    scheduleType: 'now'
-  })
+    scheduleType: 'now',
+  });
 
-  const [errors, setErrors] = useState<MessageErrors>({})
-  const [isGenerating, setIsGenerating] = useState(false)
+  const [errors, setErrors] = useState<MessageErrors>({});
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const handleInputChange = (field: keyof MessageData, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
+    setFormData((prev) => ({ ...prev, [field]: value }));
     // Очищаем ошибку при изменении поля
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: undefined }))
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
-  }
+  };
 
   const handleRecipientToggle = (recipientId: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       recipients: prev.recipients.includes(recipientId)
-        ? prev.recipients.filter(id => id !== recipientId)
-        : [...prev.recipients, recipientId]
-    }))
-  }
+        ? prev.recipients.filter((id) => id !== recipientId)
+        : [...prev.recipients, recipientId],
+    }));
+  };
 
   const generateWithAI = async () => {
-    setIsGenerating(true)
+    setIsGenerating(true);
     // Имитация работы ИИ
     setTimeout(() => {
       const aiGeneratedContent = {
@@ -88,62 +88,62 @@ export default function CreateMessageModal({ isOpen, onClose, onSave }: CreateMe
 • Миссионерские проекты
 
 Благословений вам!
-Команда церкви`
-      }
-      
-      setFormData(prev => ({
+Команда церкви`,
+      };
+
+      setFormData((prev) => ({
         ...prev,
         title: aiGeneratedContent.title,
-        content: aiGeneratedContent.content
-      }))
-      setIsGenerating(false)
-    }, 2000)
-  }
+        content: aiGeneratedContent.content,
+      }));
+      setIsGenerating(false);
+    }, 2000);
+  };
 
   const validateForm = (): boolean => {
-    const newErrors: MessageErrors = {}
+    const newErrors: MessageErrors = {};
 
     if (!formData.title.trim()) {
-      newErrors.title = 'Заголовок сообщения обязателен'
+      newErrors.title = 'Заголовок сообщения обязателен';
     }
 
     if (!formData.content.trim()) {
-      newErrors.content = 'Содержание сообщения обязательно'
+      newErrors.content = 'Содержание сообщения обязательно';
     }
 
     if (formData.recipients.length === 0) {
-      newErrors.recipients = 'Выберите получателей'
+      newErrors.recipients = 'Выберите получателей';
     }
 
     if (formData.scheduleType === 'scheduled') {
       if (!formData.scheduledDate) {
-        newErrors.scheduledDate = 'Выберите дату отправки'
+        newErrors.scheduledDate = 'Выберите дату отправки';
       }
       if (!formData.scheduledTime) {
-        newErrors.scheduledTime = 'Выберите время отправки'
+        newErrors.scheduledTime = 'Выберите время отправки';
       }
     }
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    
+    e.preventDefault();
+
     if (validateForm()) {
-      onSave(formData)
+      onSave(formData);
       setFormData({
         title: '',
         content: '',
         recipients: [],
         type: 'newsletter',
-        scheduleType: 'now'
-      })
-      setErrors({})
-      onClose()
+        scheduleType: 'now',
+      });
+      setErrors({});
+      onClose();
     }
-  }
+  };
 
   const handleClose = () => {
     setFormData({
@@ -151,19 +151,19 @@ export default function CreateMessageModal({ isOpen, onClose, onSave }: CreateMe
       content: '',
       recipients: [],
       type: 'newsletter',
-      scheduleType: 'now'
-    })
-    setErrors({})
-    onClose()
-  }
+      scheduleType: 'now',
+    });
+    setErrors({});
+    onClose();
+  };
 
   const getTotalRecipients = () => {
     return recipientGroups
       .filter((group) => formData.recipients.includes(group.id))
-      .reduce((total, group) => total + group.count, 0)
-  }
+      .reduce((total, group) => total + group.count, 0);
+  };
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -199,9 +199,7 @@ export default function CreateMessageModal({ isOpen, onClose, onSave }: CreateMe
                   }`}
                 >
                   <type.icon className="h-5 w-5 text-primary-600 mb-2" />
-                  <p className="font-medium text-gray-900 dark:text-gray-100">
-                    {type.name}
-                  </p>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">{type.name}</p>
                 </button>
               ))}
             </div>
@@ -219,9 +217,7 @@ export default function CreateMessageModal({ isOpen, onClose, onSave }: CreateMe
               className={`input w-full ${errors.title ? 'border-red-500' : ''}`}
               placeholder="Введите заголовок сообщения"
             />
-            {errors.title && (
-              <p className="mt-1 text-sm text-red-600">{errors.title}</p>
-            )}
+            {errors.title && <p className="mt-1 text-sm text-red-600">{errors.title}</p>}
           </div>
 
           {/* Содержание */}
@@ -246,9 +242,7 @@ export default function CreateMessageModal({ isOpen, onClose, onSave }: CreateMe
               className={`input w-full h-32 resize-none ${errors.content ? 'border-red-500' : ''}`}
               placeholder="Введите содержание сообщения..."
             />
-            {errors.content && (
-              <p className="mt-1 text-sm text-red-600">{errors.content}</p>
-            )}
+            {errors.content && <p className="mt-1 text-sm text-red-600">{errors.content}</p>}
           </div>
 
           {/* Получатели */}
@@ -270,9 +264,7 @@ export default function CreateMessageModal({ isOpen, onClose, onSave }: CreateMe
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-medium text-gray-900 dark:text-gray-100">
-                        {group.name}
-                      </p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">{group.name}</p>
                       <p className="text-sm text-gray-600 dark:text-gray-400">
                         {group.count} человек
                       </p>
@@ -287,9 +279,7 @@ export default function CreateMessageModal({ isOpen, onClose, onSave }: CreateMe
                 Всего получателей: <span className="font-semibold">{getTotalRecipients()}</span>
               </p>
             )}
-            {errors.recipients && (
-              <p className="mt-1 text-sm text-red-600">{errors.recipients}</p>
-            )}
+            {errors.recipients && <p className="mt-1 text-sm text-red-600">{errors.recipients}</p>}
           </div>
 
           {/* Расписание */}
@@ -359,17 +349,10 @@ export default function CreateMessageModal({ isOpen, onClose, onSave }: CreateMe
 
           {/* Кнопки */}
           <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700">
-            <button
-              type="button"
-              onClick={handleClose}
-              className="btn btn-secondary"
-            >
+            <button type="button" onClick={handleClose} className="btn btn-secondary">
               Отмена
             </button>
-            <button
-              type="submit"
-              className="btn btn-primary"
-            >
+            <button type="submit" className="btn btn-primary">
               <Send className="mr-2 h-4 w-4" />
               {formData.scheduleType === 'now' ? 'Отправить сейчас' : 'Запланировать'}
             </button>
@@ -377,5 +360,5 @@ export default function CreateMessageModal({ isOpen, onClose, onSave }: CreateMe
         </form>
       </div>
     </div>
-  )
+  );
 }

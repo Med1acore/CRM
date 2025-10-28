@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase';
 import { Brain, Loader2, AlertCircle, User, Bot } from 'lucide-react';
 
 // Footsteps icon component
-const FootstepsIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
+const FootstepsIcon = ({ className = 'w-5 h-5' }: { className?: string }) => (
   <div className={`${className} flex items-center justify-center text-blue-500`}>
     <span className="text-xs font-bold">👣</span>
   </div>
@@ -43,8 +43,23 @@ interface SermonAnalyzerProps {
 
 // Predefined role sets
 const QUICK_ROLES = ['Теолог-догматист', 'Практический психолог-консультант', 'Критик-секулярист'];
-const DEEP_ROLES = ['Теолог-догматист', 'Практический психолог-консультант', 'Критик-секулярист', 'Философ', 'Богослов'];
-const ALL_ROLES = ['Теолог-догматист', 'Практический психолог-консультант', 'Критик-секулярист', 'Философ', 'Богослов', 'Историк', 'Пастор', 'Прихожанин'];
+const DEEP_ROLES = [
+  'Теолог-догматист',
+  'Практический психолог-консультант',
+  'Критик-секулярист',
+  'Философ',
+  'Богослов',
+];
+const ALL_ROLES = [
+  'Теолог-догматист',
+  'Практический психолог-консультант',
+  'Критик-секулярист',
+  'Философ',
+  'Богослов',
+  'Историк',
+  'Пастор',
+  'Прихожанин',
+];
 
 export const SermonAnalyzer: React.FC<SermonAnalyzerProps> = ({ className = '' }) => {
   // State
@@ -54,7 +69,9 @@ export const SermonAnalyzer: React.FC<SermonAnalyzerProps> = ({ className = '' }
   const [isLoading, setIsLoading] = useState<boolean>(false);
   // Результаты храним в сообщениях чата; отдельное состояние не требуется
   const [error, setError] = useState<string | null>(null);
-  const [usage, setUsage] = useState<{ current: number; limit: number; month: string } | null>(null);
+  const [usage, setUsage] = useState<{ current: number; limit: number; month: string } | null>(
+    null
+  );
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -69,7 +86,13 @@ export const SermonAnalyzer: React.FC<SermonAnalyzerProps> = ({ className = '' }
   }, [messages]);
 
   // Add message to chat
-  const addMessage = (type: 'user' | 'ai' | 'system', content: string, role?: string, feedback?: string, improvements?: string) => {
+  const addMessage = (
+    type: 'user' | 'ai' | 'system',
+    content: string,
+    role?: string,
+    feedback?: string,
+    improvements?: string
+  ) => {
     const newMessage: ChatMessage = {
       id: Date.now().toString(),
       type,
@@ -77,9 +100,9 @@ export const SermonAnalyzer: React.FC<SermonAnalyzerProps> = ({ className = '' }
       timestamp: new Date(),
       role,
       feedback,
-      improvements
+      improvements,
     };
-    setMessages(prev => [...prev, newMessage]);
+    setMessages((prev) => [...prev, newMessage]);
   };
 
   // Handle analysis type change
@@ -87,7 +110,7 @@ export const SermonAnalyzer: React.FC<SermonAnalyzerProps> = ({ className = '' }
     setAnalysisType(type);
     setError(null);
     // no-op
-    
+
     switch (type) {
       case 'quick':
         setSelectedRoles(QUICK_ROLES);
@@ -103,9 +126,9 @@ export const SermonAnalyzer: React.FC<SermonAnalyzerProps> = ({ className = '' }
 
   // Handle role selection for custom analysis
   const handleRoleToggle = (role: string) => {
-    setSelectedRoles(prev => {
+    setSelectedRoles((prev) => {
       if (prev.includes(role)) {
-        return prev.filter(r => r !== role);
+        return prev.filter((r) => r !== role);
       } else {
         return [...prev, role];
       }
@@ -130,7 +153,11 @@ export const SermonAnalyzer: React.FC<SermonAnalyzerProps> = ({ className = '' }
     setIsTyping(true);
 
     // Add moderator message first
-    addMessage('ai', `🤖 Консилиум начал работу. Получен текст проповеди. Начинаю анализ с точки зрения выбранных ролей: ${selectedRoles.join(', ')}.`, 'Михаил Владимирович');
+    addMessage(
+      'ai',
+      `🤖 Консилиум начал работу. Получен текст проповеди. Начинаю анализ с точки зрения выбранных ролей: ${selectedRoles.join(', ')}.`,
+      'Михаил Владимирович'
+    );
 
     try {
       if (!supabase) {
@@ -139,12 +166,12 @@ export const SermonAnalyzer: React.FC<SermonAnalyzerProps> = ({ className = '' }
 
       // Check if function is available
       console.log('Attempting to call improve-sermon function...');
-      
+
       const { data, error: functionError } = await supabase.functions.invoke('improve-sermon', {
         body: {
           sermonText: sermonText.trim(),
-          roles: selectedRoles
-        }
+          roles: selectedRoles,
+        },
       });
 
       if (functionError) {
@@ -156,31 +183,51 @@ export const SermonAnalyzer: React.FC<SermonAnalyzerProps> = ({ className = '' }
         const response = data as AnalysisResponse;
         // no-op: выводим напрямую в чат
         setUsage(response.usage);
-        
+
         // Add AI messages to chat with staggered timing
         response.analysis.forEach((analysis, index) => {
-          setTimeout(() => {
-            addMessage('ai', `📝 Анализ завершен`, analysis.role, analysis.feedback, analysis.improvements);
-          }, (index + 1) * 2000); // 2 seconds between each role
+          setTimeout(
+            () => {
+              addMessage(
+                'ai',
+                `📝 Анализ завершен`,
+                analysis.role,
+                analysis.feedback,
+                analysis.improvements
+              );
+            },
+            (index + 1) * 2000
+          ); // 2 seconds between each role
         });
       } else if (Array.isArray(data)) {
         // Fallback for old format
         // no-op: выводим напрямую в чат
         data.forEach((analysis, index) => {
-          setTimeout(() => {
-            addMessage('ai', `📝 Анализ завершен`, analysis.role, analysis.feedback, analysis.improvements);
-          }, (index + 1) * 2000);
+          setTimeout(
+            () => {
+              addMessage(
+                'ai',
+                `📝 Анализ завершен`,
+                analysis.role,
+                analysis.feedback,
+                analysis.improvements
+              );
+            },
+            (index + 1) * 2000
+          );
         });
       } else {
         throw new Error('Неверный формат ответа от сервера');
       }
     } catch (err) {
       console.error('Analysis error:', err);
-      
+
       // More detailed error handling
       if (err instanceof Error) {
         if (err.message.includes('Failed to send a request to the Edge Function')) {
-          setError('Функция анализа недоступна. Проверьте подключение к интернету или обратитесь к администратору.');
+          setError(
+            'Функция анализа недоступна. Проверьте подключение к интернету или обратитесь к администратору.'
+          );
         } else if (err.message.includes('Превышен лимит')) {
           setError(err.message);
         } else if (err.message.includes('Google AI API')) {
@@ -209,7 +256,9 @@ export const SermonAnalyzer: React.FC<SermonAnalyzerProps> = ({ className = '' }
   // };
 
   return (
-    <div className={`flex h-full max-h-[800px] bg-white rounded-lg shadow-lg overflow-hidden ${className}`}>
+    <div
+      className={`flex h-full max-h-[800px] bg-white rounded-lg shadow-lg overflow-hidden ${className}`}
+    >
       {/* Left Panel - Input */}
       <div className="w-1/2 border-r border-gray-200 flex flex-col">
         {/* Input Panel Header */}
@@ -233,7 +282,7 @@ export const SermonAnalyzer: React.FC<SermonAnalyzerProps> = ({ className = '' }
               <AlertCircle className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
               <div>
                 <p className="text-xs text-amber-700 pt-sans-regular">
-                  <span className="pt-sans-bold">Важно:</span> Загружайте текст, когда он готов. 
+                  <span className="pt-sans-bold">Важно:</span> Загружайте текст, когда он готов.
                   Ограничение: <span className="pt-sans-bold">3 анализа в месяц</span>.
                 </p>
               </div>
@@ -242,7 +291,10 @@ export const SermonAnalyzer: React.FC<SermonAnalyzerProps> = ({ className = '' }
 
           {/* Sermon Text Input */}
           <div className="space-y-2">
-            <label htmlFor="sermon-text" className="block text-sm font-medium text-gray-700 pt-sans-bold">
+            <label
+              htmlFor="sermon-text"
+              className="block text-sm font-medium text-gray-700 pt-sans-bold"
+            >
               Текст проповеди
             </label>
             <textarea
@@ -256,7 +308,9 @@ export const SermonAnalyzer: React.FC<SermonAnalyzerProps> = ({ className = '' }
             <div className="flex items-center justify-between text-xs text-gray-500">
               <span className="pt-sans-regular">{sermonText.length} символов</span>
               {usage && (
-                <span className="pt-sans-regular">Использовано: {usage.current}/{usage.limit}</span>
+                <span className="pt-sans-regular">
+                  Использовано: {usage.current}/{usage.limit}
+                </span>
               )}
             </div>
           </div>
@@ -270,9 +324,12 @@ export const SermonAnalyzer: React.FC<SermonAnalyzerProps> = ({ className = '' }
               {[
                 { value: 'quick', label: 'Быстрый', description: '3 роли' },
                 { value: 'deep', label: 'Глубокий', description: '5 ролей' },
-                { value: 'custom', label: 'Свой', description: 'Выбор' }
+                { value: 'custom', label: 'Свой', description: 'Выбор' },
               ].map((option) => (
-                <label key={option.value} className="flex flex-col items-center p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
+                <label
+                  key={option.value}
+                  className="flex flex-col items-center p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors"
+                >
                   <input
                     type="radio"
                     name="analysis-type"
@@ -282,10 +339,14 @@ export const SermonAnalyzer: React.FC<SermonAnalyzerProps> = ({ className = '' }
                     className="sr-only"
                     disabled={isLoading}
                   />
-                  <span className={`text-sm font-medium pt-sans-bold ${analysisType === option.value ? 'text-blue-600' : 'text-gray-700'}`}>
+                  <span
+                    className={`text-sm font-medium pt-sans-bold ${analysisType === option.value ? 'text-blue-600' : 'text-gray-700'}`}
+                  >
                     {option.label}
                   </span>
-                  <span className="text-xs text-gray-500 pt-sans-regular">{option.description}</span>
+                  <span className="text-xs text-gray-500 pt-sans-regular">
+                    {option.description}
+                  </span>
                 </label>
               ))}
             </div>
@@ -299,7 +360,10 @@ export const SermonAnalyzer: React.FC<SermonAnalyzerProps> = ({ className = '' }
               </label>
               <div className="grid grid-cols-1 gap-2">
                 {ALL_ROLES.map((role) => (
-                  <label key={role} className="flex items-center space-x-2 p-2 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+                  <label
+                    key={role}
+                    className="flex items-center space-x-2 p-2 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50"
+                  >
                     <input
                       type="checkbox"
                       checked={selectedRoles.includes(role)}
@@ -381,8 +445,8 @@ export const SermonAnalyzer: React.FC<SermonAnalyzerProps> = ({ className = '' }
               <Bot className="w-12 h-12 mb-4 text-gray-300" />
               <p className="text-lg font-medium pt-sans-bold">Добро пожаловать!</p>
               <p className="text-sm text-center max-w-sm pt-sans-regular">
-                Введите текст проповеди слева и нажмите "Начать анализ". 
-                Консилиум экспертов поможет улучшить вашу проповедь.
+                Введите текст проповеди слева и нажмите "Начать анализ". Консилиум экспертов поможет
+                улучшить вашу проповедь.
               </p>
             </div>
           ) : (
@@ -394,9 +458,9 @@ export const SermonAnalyzer: React.FC<SermonAnalyzerProps> = ({ className = '' }
                 {message.type === 'ai' && (
                   <div className="flex-shrink-0 w-8 h-8 rounded-full overflow-hidden">
                     {message.role === 'Михаил Владимирович' ? (
-                      <img 
-                        src="/fonts/mikhail-avatar.webp" 
-                        alt="Михаил Владимирович" 
+                      <img
+                        src="/fonts/mikhail-avatar.webp"
+                        alt="Михаил Владимирович"
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -406,7 +470,7 @@ export const SermonAnalyzer: React.FC<SermonAnalyzerProps> = ({ className = '' }
                     )}
                   </div>
                 )}
-                
+
                 <div
                   className={`max-w-[85%] rounded-2xl px-4 py-3 ${
                     message.type === 'user'
@@ -419,37 +483,43 @@ export const SermonAnalyzer: React.FC<SermonAnalyzerProps> = ({ className = '' }
                       <User className="w-4 h-4" />
                     ) : (
                       <div className="flex items-center gap-1">
-                        <span className="text-xs font-medium text-blue-600 pt-sans-bold">{message.role}</span>
+                        <span className="text-xs font-medium text-blue-600 pt-sans-bold">
+                          {message.role}
+                        </span>
                         {message.role === 'Михаил Владимирович' && (
                           <FootstepsIcon className="w-5 h-5 text-blue-500 ml-1" />
                         )}
                       </div>
                     )}
                     <span className="text-xs opacity-70 pt-sans-regular">
-                      {message.timestamp.toLocaleTimeString('ru-RU', { 
-                        hour: '2-digit', 
-                        minute: '2-digit' 
+                      {message.timestamp.toLocaleTimeString('ru-RU', {
+                        hour: '2-digit',
+                        minute: '2-digit',
                       })}
                     </span>
                   </div>
-                  
+
                   <p className="text-sm whitespace-pre-wrap pt-sans-regular">{message.content}</p>
-                  
+
                   {message.feedback && (
                     <div className="mt-3 pt-3 border-t border-gray-200">
                       <p className="text-xs font-medium text-gray-600 mb-1 pt-sans-bold">Фидбэк:</p>
                       <p className="text-sm text-gray-700 pt-sans-regular">{message.feedback}</p>
                     </div>
                   )}
-                  
+
                   {message.improvements && (
                     <div className="mt-2">
-                      <p className="text-xs font-medium text-gray-600 mb-1 pt-sans-bold">Улучшения:</p>
-                      <p className="text-sm text-gray-700 pt-sans-regular">{message.improvements}</p>
+                      <p className="text-xs font-medium text-gray-600 mb-1 pt-sans-bold">
+                        Улучшения:
+                      </p>
+                      <p className="text-sm text-gray-700 pt-sans-regular">
+                        {message.improvements}
+                      </p>
                     </div>
                   )}
                 </div>
-                
+
                 {message.type === 'user' && (
                   <div className="flex-shrink-0 w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
                     <User className="w-4 h-4 text-gray-600" />
@@ -458,30 +528,38 @@ export const SermonAnalyzer: React.FC<SermonAnalyzerProps> = ({ className = '' }
               </div>
             ))
           )}
-          
+
           {/* Typing Indicator */}
           {isTyping && (
             <div className="flex gap-3 justify-start">
               <div className="flex-shrink-0 w-8 h-8 rounded-full overflow-hidden">
-                <img 
-                  src="/fonts/mikhail-avatar.webp" 
-                  alt="Михаил Владимирович" 
+                <img
+                  src="/fonts/mikhail-avatar.webp"
+                  alt="Михаил Владимирович"
                   className="w-full h-full object-cover"
                 />
               </div>
               <div className="bg-white rounded-2xl rounded-bl-md px-4 py-3 shadow-sm border">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-500 pt-sans-regular">Консилиум анализирует...</span>
+                  <span className="text-xs text-gray-500 pt-sans-regular">
+                    Консилиум анализирует...
+                  </span>
                   <div className="flex space-x-1">
                     <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    <div
+                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                      style={{ animationDelay: '0.1s' }}
+                    ></div>
+                    <div
+                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                      style={{ animationDelay: '0.2s' }}
+                    ></div>
                   </div>
                 </div>
               </div>
             </div>
           )}
-          
+
           <div ref={messagesEndRef} />
         </div>
 

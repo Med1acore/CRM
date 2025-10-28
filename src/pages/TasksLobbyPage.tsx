@@ -1,7 +1,7 @@
 // src/pages/TasksLobbyPage.tsx
-import { Link } from "react-router-dom";
-import { Plus, CheckSquare } from "lucide-react";
-import { Board } from "@/types/tasks";
+import { Link } from 'react-router-dom';
+import { Plus, CheckSquare } from 'lucide-react';
+import { Board } from '@/types/tasks';
 
 // MOCK DATA
 const MOCK_BOARDS: Board[] = [
@@ -28,31 +28,29 @@ export function TasksLobbyPage() {
           Создать доску
         </button>
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {MOCK_BOARDS.map(board => (
-          <Link 
-            to={`/tasks/${board.id}`} 
-            key={board.id} 
+        {MOCK_BOARDS.map((board) => (
+          <Link
+            to={`/tasks/${board.id}`}
+            key={board.id}
             className="block p-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-500 dark:hover:border-blue-400 transition-colors shadow-sm hover:shadow-md"
           >
             <div className="flex items-center mb-4">
               <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg mr-3">
                 <CheckSquare className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               </div>
-              <h2 className="font-bold text-lg text-gray-900 dark:text-gray-100">
-                {board.name}
-              </h2>
+              <h2 className="font-bold text-lg text-gray-900 dark:text-gray-100">{board.name}</h2>
             </div>
-            
+
             <div className="space-y-2">
               <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
                 <span>Задач выполнено:</span>
                 <span className="font-medium">12/16</span>
               </div>
               <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <div 
-                  className="bg-blue-500 h-2 rounded-full transition-all duration-300" 
+                <div
+                  className="bg-blue-500 h-2 rounded-full transition-all duration-300"
                   style={{ width: '75%' }}
                 ></div>
               </div>

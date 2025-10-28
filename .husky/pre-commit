@@ -1,1 +1,3 @@
 npm run precommit:protect
+npm run typecheck
+npm run lint

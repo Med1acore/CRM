@@ -1,148 +1,166 @@
-import { useState, useRef, useEffect } from 'react'
-import { Search, Filter, X, Lightbulb } from 'lucide-react'
-import type { Person } from '@/types/person'
+import { useState, useRef, useEffect } from 'react';
+import { Search, Filter, X, Lightbulb } from 'lucide-react';
+import type { Person } from '@/types/person';
 
 interface SmartSearchBarProps {
-  onSearch: (query: string, filters: SearchFilters) => void
-  people: Person[]
+  onSearch: (query: string, filters: SearchFilters) => void;
+  people: Person[];
 }
 
 interface SearchFilters {
-  status?: string[]
-  tags?: string[]
-  name?: string
-  email?: string
+  status?: string[];
+  tags?: string[];
+  name?: string;
+  email?: string;
 }
 
 interface SearchSuggestion {
-  text: string
-  type: 'status' | 'tag' | 'example'
-  description?: string
+  text: string;
+  type: 'status' | 'tag' | 'example';
+  description?: string;
 }
 
 export function SmartSearchBar({ onSearch, people }: SmartSearchBarProps) {
-  const [query, setQuery] = useState('')
-  const [showSuggestions, setShowSuggestions] = useState(false)
-  const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([])
-  const [filters, setFilters] = useState<SearchFilters>({})
-  const inputRef = useRef<HTMLInputElement>(null)
+  const [query, setQuery] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
+  const [filters, setFilters] = useState<SearchFilters>({});
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Извлекаем уникальные статусы и теги из данных
-  const allStatuses = [...new Set(people.map(p => p.status))]
-  const allTags = [...new Set(people.flatMap(p => p.tags))]
+  const allStatuses = [...new Set(people.map((p) => p.status))];
+  const allTags = [...new Set(people.flatMap((p) => p.tags))];
 
   // Примеры запросов
   const exampleQueries = [
     'Покажи всех гостей',
     'Найди участников с тегом Музыка',
     'Покажи всех лидеров в Молодежном служении',
-    'Найди активных участников с тегами Музыка и Проповедь'
-  ]
+    'Найди активных участников с тегами Музыка и Проповедь',
+  ];
 
   // Генерируем подсказки на основе ввода
   useEffect(() => {
     if (!query.trim()) {
       setSuggestions([
-        ...exampleQueries.map(text => ({ text, type: 'example' as const, description: 'Пример запроса' })),
-        ...allStatuses.map(status => ({ text: `Покажи всех ${status}`, type: 'status' as const, description: 'Фильтр по статусу' })),
-        ...allTags.slice(0, 5).map(tag => ({ text: `Найди с тегом ${tag}`, type: 'tag' as const, description: 'Фильтр по тегу' }))
-      ])
-      return
+        ...exampleQueries.map((text) => ({
+          text,
+          type: 'example' as const,
+          description: 'Пример запроса',
+        })),
+        ...allStatuses.map((status) => ({
+          text: `Покажи всех ${status}`,
+          type: 'status' as const,
+          description: 'Фильтр по статусу',
+        })),
+        ...allTags
+          .slice(0, 5)
+          .map((tag) => ({
+            text: `Найди с тегом ${tag}`,
+            type: 'tag' as const,
+            description: 'Фильтр по тегу',
+          })),
+      ]);
+      return;
     }
 
-    const newSuggestions: SearchSuggestion[] = []
-    const lowerQuery = query.toLowerCase()
+    const newSuggestions: SearchSuggestion[] = [];
+    const lowerQuery = query.toLowerCase();
 
     // Подсказки по статусам
-    allStatuses.forEach(status => {
+    allStatuses.forEach((status) => {
       if (status.toLowerCase().includes(lowerQuery)) {
         newSuggestions.push({
           text: `Покажи всех ${status}`,
           type: 'status',
-          description: 'Фильтр по статусу'
-        })
+          description: 'Фильтр по статусу',
+        });
       }
-    })
+    });
 
     // Подсказки по тегам
-    allTags.forEach(tag => {
+    allTags.forEach((tag) => {
       if (tag.toLowerCase().includes(lowerQuery)) {
         newSuggestions.push({
           text: `Найди с тегом ${tag}`,
           type: 'tag',
-          description: 'Фильтр по тегу'
-        })
+          description: 'Фильтр по тегу',
+        });
       }
-    })
+    });
 
     // Примеры запросов
-    exampleQueries.forEach(example => {
+    exampleQueries.forEach((example) => {
       if (example.toLowerCase().includes(lowerQuery)) {
         newSuggestions.push({
           text: example,
           type: 'example',
-          description: 'Пример запроса'
-        })
+          description: 'Пример запроса',
+        });
       }
-    })
+    });
 
-    setSuggestions(newSuggestions.slice(0, 8))
-  }, [query, allStatuses, allTags])
+    setSuggestions(newSuggestions.slice(0, 8));
+  }, [query, allStatuses, allTags]);
 
   // Парсим естественный язык в фильтры
   const parseQuery = (query: string): SearchFilters => {
-    const filters: SearchFilters = {}
-    const lowerQuery = query.toLowerCase()
+    const filters: SearchFilters = {};
+    const lowerQuery = query.toLowerCase();
 
     // Поиск по статусам
-    allStatuses.forEach(status => {
-      if (lowerQuery.includes(status.toLowerCase()) || 
-          lowerQuery.includes('гост') && status === 'guest' ||
-          lowerQuery.includes('актив') && status === 'active' ||
-          lowerQuery.includes('нов') && status === 'new' ||
-          lowerQuery.includes('лидер') && status === 'leader') {
-        filters.status = [...(filters.status || []), status]
+    allStatuses.forEach((status) => {
+      if (
+        lowerQuery.includes(status.toLowerCase()) ||
+        (lowerQuery.includes('гост') && status === 'guest') ||
+        (lowerQuery.includes('актив') && status === 'active') ||
+        (lowerQuery.includes('нов') && status === 'new') ||
+        (lowerQuery.includes('лидер') && status === 'leader')
+      ) {
+        filters.status = [...(filters.status || []), status];
       }
-    })
+    });
 
     // Поиск по тегам
-    allTags.forEach(tag => {
-      if (lowerQuery.includes(tag.toLowerCase()) || 
-          lowerQuery.includes('тег') && lowerQuery.includes(tag.toLowerCase())) {
-        filters.tags = [...(filters.tags || []), tag]
+    allTags.forEach((tag) => {
+      if (
+        lowerQuery.includes(tag.toLowerCase()) ||
+        (lowerQuery.includes('тег') && lowerQuery.includes(tag.toLowerCase()))
+      ) {
+        filters.tags = [...(filters.tags || []), tag];
       }
-    })
+    });
 
     // Поиск по имени/email (если не найдены специальные фильтры)
     if (!filters.status && !filters.tags) {
-      const words = query.split(' ').filter(word => word.length > 2)
+      const words = query.split(' ').filter((word) => word.length > 2);
       if (words.length > 0) {
-        filters.name = words.join(' ')
+        filters.name = words.join(' ');
       }
     }
 
-    return filters
-  }
+    return filters;
+  };
 
   const handleSearch = (searchQuery: string = query) => {
-    const parsedFilters = parseQuery(searchQuery)
-    setFilters(parsedFilters)
-    onSearch(searchQuery, parsedFilters)
-    setShowSuggestions(false)
-  }
+    const parsedFilters = parseQuery(searchQuery);
+    setFilters(parsedFilters);
+    onSearch(searchQuery, parsedFilters);
+    setShowSuggestions(false);
+  };
 
   const handleSuggestionClick = (suggestion: SearchSuggestion) => {
-    setQuery(suggestion.text)
-    handleSearch(suggestion.text)
-  }
+    setQuery(suggestion.text);
+    handleSearch(suggestion.text);
+  };
 
   const clearFilters = () => {
-    setFilters({})
-    setQuery('')
-    onSearch('', {})
-  }
+    setFilters({});
+    setQuery('');
+    onSearch('', {});
+  };
 
-  const hasActiveFilters = Object.keys(filters).length > 0
+  const hasActiveFilters = Object.keys(filters).length > 0;
 
   return (
     <div className="relative">
@@ -159,10 +177,10 @@ export function SmartSearchBar({ onSearch, people }: SmartSearchBarProps) {
               onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
-                  handleSearch()
+                  handleSearch();
                 }
                 if (e.key === 'Escape') {
-                  setShowSuggestions(false)
+                  setShowSuggestions(false);
                 }
               }}
               className="input pl-10 pr-10"
@@ -170,7 +188,10 @@ export function SmartSearchBar({ onSearch, people }: SmartSearchBarProps) {
             />
             {query && (
               <button
-                onClick={() => { setQuery(''); handleSearch('') }}
+                onClick={() => {
+                  setQuery('');
+                  handleSearch('');
+                }}
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
               >
                 <X className="h-4 w-4" />
@@ -188,7 +209,9 @@ export function SmartSearchBar({ onSearch, people }: SmartSearchBarProps) {
                   className="w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-600 last:border-b-0"
                 >
                   <div className="flex items-center gap-3">
-                    {suggestion.type === 'example' && <Lightbulb className="h-4 w-4 text-yellow-500" />}
+                    {suggestion.type === 'example' && (
+                      <Lightbulb className="h-4 w-4 text-yellow-500" />
+                    )}
                     {suggestion.type === 'status' && <Filter className="h-4 w-4 text-blue-500" />}
                     {suggestion.type === 'tag' && <Filter className="h-4 w-4 text-green-500" />}
                     <div>
@@ -208,10 +231,7 @@ export function SmartSearchBar({ onSearch, people }: SmartSearchBarProps) {
           )}
         </div>
 
-        <button
-          onClick={() => handleSearch()}
-          className="btn btn-primary px-4"
-        >
+        <button onClick={() => handleSearch()} className="btn btn-primary px-4">
           <Search className="h-4 w-4" />
         </button>
 
@@ -229,16 +249,19 @@ export function SmartSearchBar({ onSearch, people }: SmartSearchBarProps) {
       {/* Активные фильтры */}
       {hasActiveFilters && (
         <div className="mt-3 flex flex-wrap gap-2">
-          {filters.status?.map(status => (
-            <span key={status} className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-md text-sm">
+          {filters.status?.map((status) => (
+            <span
+              key={status}
+              className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-md text-sm"
+            >
               Статус: {status}
               <button
                 onClick={() => {
-                  const newFilters = { ...filters }
-                  newFilters.status = newFilters.status?.filter(s => s !== status)
-                  if (newFilters.status?.length === 0) delete newFilters.status
-                  setFilters(newFilters)
-                  onSearch(query, newFilters)
+                  const newFilters = { ...filters };
+                  newFilters.status = newFilters.status?.filter((s) => s !== status);
+                  if (newFilters.status?.length === 0) delete newFilters.status;
+                  setFilters(newFilters);
+                  onSearch(query, newFilters);
                 }}
                 className="hover:text-blue-600"
               >
@@ -246,16 +269,19 @@ export function SmartSearchBar({ onSearch, people }: SmartSearchBarProps) {
               </button>
             </span>
           ))}
-          {filters.tags?.map(tag => (
-            <span key={tag} className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-md text-sm">
+          {filters.tags?.map((tag) => (
+            <span
+              key={tag}
+              className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-md text-sm"
+            >
               Тег: {tag}
               <button
                 onClick={() => {
-                  const newFilters = { ...filters }
-                  newFilters.tags = newFilters.tags?.filter(t => t !== tag)
-                  if (newFilters.tags?.length === 0) delete newFilters.tags
-                  setFilters(newFilters)
-                  onSearch(query, newFilters)
+                  const newFilters = { ...filters };
+                  newFilters.tags = newFilters.tags?.filter((t) => t !== tag);
+                  if (newFilters.tags?.length === 0) delete newFilters.tags;
+                  setFilters(newFilters);
+                  onSearch(query, newFilters);
                 }}
                 className="hover:text-green-600"
               >
@@ -268,10 +294,10 @@ export function SmartSearchBar({ onSearch, people }: SmartSearchBarProps) {
               Поиск: {filters.name}
               <button
                 onClick={() => {
-                  const newFilters = { ...filters }
-                  delete newFilters.name
-                  setFilters(newFilters)
-                  onSearch(query, newFilters)
+                  const newFilters = { ...filters };
+                  delete newFilters.name;
+                  setFilters(newFilters);
+                  onSearch(query, newFilters);
                 }}
                 className="hover:text-gray-600"
               >
@@ -282,5 +308,5 @@ export function SmartSearchBar({ onSearch, people }: SmartSearchBarProps) {
         </div>
       )}
     </div>
-  )
+  );
 }

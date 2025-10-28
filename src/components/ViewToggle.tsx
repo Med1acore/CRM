@@ -1,8 +1,8 @@
-import { LayoutGrid, List } from "lucide-react";
+import { LayoutGrid, List } from 'lucide-react';
 
 interface ViewToggleProps {
-  viewMode: "grid" | "list";
-  setViewMode: (mode: "grid" | "list") => void;
+  viewMode: 'grid' | 'list';
+  setViewMode: (mode: 'grid' | 'list') => void;
 }
 
 export function ViewToggle({ viewMode, setViewMode }: ViewToggleProps) {
@@ -23,5 +23,3 @@ export function ViewToggle({ viewMode, setViewMode }: ViewToggleProps) {
     </div>
   );
 }
-
-

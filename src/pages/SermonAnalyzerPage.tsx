@@ -12,7 +12,7 @@ export default function SermonAnalyzerPage() {
             Используйте AI для улучшения ваших проповедей с разных точек зрения
           </p>
         </div>
-        
+
         <SermonAnalyzer />
       </div>
     </div>

@@ -1,20 +1,20 @@
-import { useState, useEffect } from 'react'
-import { Plus, Search, Users } from 'lucide-react'
-import { AddUserModal, PeopleGrid, PeopleTable, ViewToggle, SmartSearchBar } from '../components'
-import type { Person } from '@/types/person'
-import toast from 'react-hot-toast'
+import { useState, useEffect } from 'react';
+import { Plus, Search, Users } from 'lucide-react';
+import { AddUserModal, PeopleGrid, PeopleTable, ViewToggle, SmartSearchBar } from '../components';
+import type { Person } from '@/types/person';
+import toast from 'react-hot-toast';
 
 interface User {
-  id: string
-  full_name: string
-  email: string
-  phone?: string
-  date_of_birth?: string
-  status: string
-  tags: string[]
-  avatar_url?: string | null
-  created_at: string
-  updated_at: string
+  id: string;
+  full_name: string;
+  email: string;
+  phone?: string;
+  date_of_birth?: string;
+  status: string;
+  tags: string[];
+  avatar_url?: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 const initialUsers: User[] = [
@@ -51,120 +51,125 @@ const initialUsers: User[] = [
     created_at: '2024-01-10T10:00:00Z',
     updated_at: '2024-01-10T10:00:00Z',
   },
-]
+];
 
 interface SearchFilters {
-  status?: string[]
-  tags?: string[]
-  name?: string
-  email?: string
+  status?: string[];
+  tags?: string[];
+  name?: string;
+  email?: string;
 }
 
 export default function PeopleHub() {
   // Загружаем пользователей из localStorage или используем начальные данные
   const [users, setUsers] = useState<User[]>(() => {
     try {
-      const saved = localStorage.getItem('crm-users')
-      return saved ? JSON.parse(saved) : initialUsers
+      const saved = localStorage.getItem('crm-users');
+      return saved ? JSON.parse(saved) : initialUsers;
     } catch (error) {
-      console.error('Ошибка загрузки пользователей из localStorage:', error)
-      return initialUsers
+      console.error('Ошибка загрузки пользователей из localStorage:', error);
+      return initialUsers;
     }
-  })
-  const [searchTerm, setSearchTerm] = useState('')
-  const [selectedStatus, setSelectedStatus] = useState<string>('all')
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
-  const [editUser, setEditUser] = useState<User | null>(null)
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
-  const [smartFilters, setSmartFilters] = useState<SearchFilters>({})
+  });
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [editUser, setEditUser] = useState<User | null>(null);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [smartFilters, setSmartFilters] = useState<SearchFilters>({});
 
   // Сохраняем пользователей в localStorage при изменении
   useEffect(() => {
     try {
-      localStorage.setItem('crm-users', JSON.stringify(users))
+      localStorage.setItem('crm-users', JSON.stringify(users));
     } catch (error) {
-      console.error('Ошибка сохранения пользователей в localStorage:', error)
+      console.error('Ошибка сохранения пользователей в localStorage:', error);
     }
-  }, [users])
+  }, [users]);
 
-  const filteredUsers = users.filter(user => {
+  const filteredUsers = users.filter((user) => {
     // Старый поиск (для совместимости)
-    const matchesSearch = user.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesStatus = selectedStatus === 'all' || user.status === selectedStatus
+    const matchesSearch =
+      user.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = selectedStatus === 'all' || user.status === selectedStatus;
 
     // Умный поиск
-    let matchesSmartFilters = true
-    
+    let matchesSmartFilters = true;
+
     if (smartFilters.status && smartFilters.status.length > 0) {
-      const userStatus = user.status === 'active_member' ? 'active' : 
-                        user.status === 'new_member' ? 'new' : 
-                        user.status === 'minister' ? 'leader' : 'guest'
-      matchesSmartFilters = matchesSmartFilters && smartFilters.status.includes(userStatus)
+      const userStatus =
+        user.status === 'active_member'
+          ? 'active'
+          : user.status === 'new_member'
+            ? 'new'
+            : user.status === 'minister'
+              ? 'leader'
+              : 'guest';
+      matchesSmartFilters = matchesSmartFilters && smartFilters.status.includes(userStatus);
     }
-    
+
     if (smartFilters.tags && smartFilters.tags.length > 0) {
-      matchesSmartFilters = matchesSmartFilters && 
-        smartFilters.tags.some(tag => user.tags.includes(tag))
+      matchesSmartFilters =
+        matchesSmartFilters && smartFilters.tags.some((tag) => user.tags.includes(tag));
     }
-    
+
     if (smartFilters.name) {
-      matchesSmartFilters = matchesSmartFilters && 
-        user.full_name.toLowerCase().includes(smartFilters.name.toLowerCase())
+      matchesSmartFilters =
+        matchesSmartFilters &&
+        user.full_name.toLowerCase().includes(smartFilters.name.toLowerCase());
     }
-    
+
     if (smartFilters.email) {
-      matchesSmartFilters = matchesSmartFilters && 
-        user.email.toLowerCase().includes(smartFilters.email.toLowerCase())
+      matchesSmartFilters =
+        matchesSmartFilters && user.email.toLowerCase().includes(smartFilters.email.toLowerCase());
     }
 
     // Если есть умные фильтры, используем их, иначе старые
-    const hasSmartFilters = Object.keys(smartFilters).length > 0
-    return hasSmartFilters ? matchesSmartFilters : (matchesSearch && matchesStatus)
-  })
+    const hasSmartFilters = Object.keys(smartFilters).length > 0;
+    return hasSmartFilters ? matchesSmartFilters : matchesSearch && matchesStatus;
+  });
 
   const handleAddUser = (newUser: User) => {
-    setUsers(prev => [newUser, ...prev])
-  }
+    setUsers((prev) => [newUser, ...prev]);
+  };
 
   const handleDeleteUser = (userId: string) => {
     if (window.confirm('Вы уверены, что хотите удалить этого пользователя?')) {
-      setUsers(prev => prev.filter(user => user.id !== userId))
-      toast.success('Пользователь удален')
+      setUsers((prev) => prev.filter((user) => user.id !== userId));
+      toast.success('Пользователь удален');
     }
-  }
+  };
 
   const handleEditUser = (userId: string) => {
-    const user = users.find(u => u.id === userId) || null
+    const user = users.find((u) => u.id === userId) || null;
     if (user) {
-      setEditUser(user)
-      setIsAddModalOpen(true)
+      setEditUser(user);
+      setIsAddModalOpen(true);
     }
-  }
+  };
 
   const handleSaveEdit = (updated: User) => {
-    setUsers(prev => prev.map(u => (u.id === updated.id ? updated : u)))
-  }
+    setUsers((prev) => prev.map((u) => (u.id === updated.id ? updated : u)));
+  };
 
   const handleSmartSearch = (_query: string, filters: SearchFilters) => {
-    setSmartFilters(filters)
-  }
+    setSmartFilters(filters);
+  };
 
   // Функция для сброса данных (для отладки)
   const resetData = () => {
     if (window.confirm('Вы уверены, что хотите сбросить все данные пользователей?')) {
-      setUsers(initialUsers)
-      localStorage.removeItem('crm-users')
+      setUsers(initialUsers);
+      localStorage.removeItem('crm-users');
     }
-  }
+  };
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-            Люди и участники
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Люди и участники</h1>
           <p className="mt-2 text-gray-600 dark:text-gray-400">
             Управление данными о членах церкви и гостях
             <span className="ml-2 text-sm text-muted-foreground">
@@ -181,10 +186,10 @@ export default function PeopleHub() {
           >
             Сброс
           </button>
-          <button 
+          <button
             onClick={() => {
-              setEditUser(null) // Ensure we're in add mode
-              setIsAddModalOpen(true)
+              setEditUser(null); // Ensure we're in add mode
+              setIsAddModalOpen(true);
             }}
             className="btn btn-primary"
           >
@@ -204,18 +209,25 @@ export default function PeopleHub() {
             Попробуйте: "Покажи всех гостей с тегом Музыка" или "Найди активных участников"
           </p>
         </div>
-        <SmartSearchBar 
-          onSearch={handleSmartSearch} 
+        <SmartSearchBar
+          onSearch={handleSmartSearch}
           people={(() => {
             const people: Person[] = users.map((u) => ({
               id: u.id,
               fullName: u.full_name,
               email: u.email,
               phone: u.phone || '',
-              status: (u.status === 'active_member' ? 'active' : u.status === 'new_member' ? 'new' : u.status === 'minister' ? 'leader' : 'guest'),
+              status:
+                u.status === 'active_member'
+                  ? 'active'
+                  : u.status === 'new_member'
+                    ? 'new'
+                    : u.status === 'minister'
+                      ? 'leader'
+                      : 'guest',
               tags: u.tags || [],
-            }))
-            return people
+            }));
+            return people;
           })()}
         />
       </div>
@@ -260,17 +272,24 @@ export default function PeopleHub() {
             fullName: u.full_name,
             email: u.email,
             phone: u.phone || '',
-            status: (u.status === 'active_member' ? 'active' : u.status === 'new_member' ? 'new' : u.status === 'minister' ? 'leader' : 'guest'),
+            status:
+              u.status === 'active_member'
+                ? 'active'
+                : u.status === 'new_member'
+                  ? 'new'
+                  : u.status === 'minister'
+                    ? 'leader'
+                    : 'guest',
             tags: u.tags || [],
-          }))
+          }));
 
           return viewMode === 'grid' ? (
             <PeopleGrid people={people} onEdit={handleEditUser} onDelete={handleDeleteUser} />
           ) : (
             <PeopleTable people={people} />
-          )
+          );
         })()}
-      </div> 
+      </div>
 
       {filteredUsers.length === 0 && (
         <div className="text-center py-12">
@@ -287,12 +306,15 @@ export default function PeopleHub() {
       {/* Add User Modal */}
       <AddUserModal
         isOpen={isAddModalOpen}
-        onClose={() => { setIsAddModalOpen(false); setEditUser(null) }}
+        onClose={() => {
+          setIsAddModalOpen(false);
+          setEditUser(null);
+        }}
         onAddUser={handleAddUser}
         mode={editUser ? 'edit' : 'add'}
         initialUser={editUser}
         onSaveEdit={handleSaveEdit}
       />
     </div>
-  )
+  );
 }

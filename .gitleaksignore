@@ -1,0 +1,19 @@
+# Ignore false positives from Gitleaks
+
+# Placeholder values in CI config
+.github/workflows/ci.yml:placeholder-anon-key-for-ci-build-only
+
+# Environment example files (not real secrets)
+env.example
+.env.example
+
+# Documentation and migration guides
+*.md
+
+# Build artifacts
+dist/**
+node_modules/**
+
+# Supabase local development
+.supabase/**
+

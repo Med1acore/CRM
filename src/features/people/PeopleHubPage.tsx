@@ -1,11 +1,11 @@
-import { useCallback, useMemo } from 'react'
-import toast from 'react-hot-toast'
-import type { Person } from '@/types/person'
-import { AddUserModal } from '@/components'
-import { mapUserToPersonStatus } from './lib/mapStatus'
-import type { SearchFilters, User } from './types/user'
-import { PeopleActions, PeopleHeader, PeopleListContainer, PeopleSmartSearch } from './components'
-import { usePeopleState } from './hooks/usePeopleState'
+import { useCallback, useMemo } from 'react';
+import toast from 'react-hot-toast';
+import type { Person } from '@/types/person';
+import { AddUserModal } from '@/components';
+import { mapUserToPersonStatus } from './lib/mapStatus';
+import type { SearchFilters, User } from './types/user';
+import { PeopleActions, PeopleHeader, PeopleListContainer, PeopleSmartSearch } from './components';
+import { usePeopleState } from './hooks/usePeopleState';
 
 const initialUsers: User[] = [
   {
@@ -41,17 +41,17 @@ const initialUsers: User[] = [
     created_at: '2024-01-10T10:00:00Z',
     updated_at: '2024-01-10T10:00:00Z',
   },
-]
+];
 
 function toPersonUsers(users: User[]): Person[] {
-  return users.map(user => ({
+  return users.map((user) => ({
     id: user.id,
     fullName: user.full_name,
     email: user.email,
     phone: user.phone || '',
     status: mapUserToPersonStatus(user.status),
     tags: user.tags || [],
-  }))
+  }));
 }
 
 /**
@@ -70,44 +70,59 @@ export function PeopleHubPage(): JSX.Element {
     setIsAddModalOpen,
     setEditUser,
     resetUsers,
-  } = usePeopleState(initialUsers)
+  } = usePeopleState(initialUsers);
 
-  const people = useMemo(() => toPersonUsers(filteredUsers), [filteredUsers])
+  const people = useMemo(() => toPersonUsers(filteredUsers), [filteredUsers]);
 
-  const handleSmartSearch = useCallback((query: string, filters: SearchFilters) => {
-    console.debug('Smart search query:', query)
-    setSmartFilters(filters)
-  }, [setSmartFilters])
+  const handleSmartSearch = useCallback(
+    (query: string, filters: SearchFilters) => {
+      console.debug('Smart search query:', query);
+      setSmartFilters(filters);
+    },
+    [setSmartFilters]
+  );
 
-  const handleAddUser = useCallback((newUser: User) => {
-    addUser(newUser)
-  }, [addUser])
+  const handleAddUser = useCallback(
+    (newUser: User) => {
+      addUser(newUser);
+    },
+    [addUser]
+  );
 
-  const handleDeleteUser = useCallback((userId: string) => {
-    if (window.confirm('Вы уверены, что хотите удалить этого пользователя?')) {
-      deleteUser(userId)
-      toast.success('Пользователь удален')
-    }
-  }, [deleteUser])
+  const handleDeleteUser = useCallback(
+    (userId: string) => {
+      if (window.confirm('Вы уверены, что хотите удалить этого пользователя?')) {
+        deleteUser(userId);
+        toast.success('Пользователь удален');
+      }
+    },
+    [deleteUser]
+  );
 
-  const handleEditUser = useCallback((userId: string) => {
-    const user = state.users.find(u => u.id === userId) || null
-    if (user) {
-      setEditUser(user)
-      setIsAddModalOpen(true)
-    }
-  }, [state.users, setEditUser, setIsAddModalOpen])
+  const handleEditUser = useCallback(
+    (userId: string) => {
+      const user = state.users.find((u) => u.id === userId) || null;
+      if (user) {
+        setEditUser(user);
+        setIsAddModalOpen(true);
+      }
+    },
+    [state.users, setEditUser, setIsAddModalOpen]
+  );
 
-  const handleSaveEdit = useCallback((updated: User) => {
-    updateUser(updated)
-  }, [updateUser])
+  const handleSaveEdit = useCallback(
+    (updated: User) => {
+      updateUser(updated);
+    },
+    [updateUser]
+  );
 
   const handleResetData = useCallback(() => {
     if (window.confirm('Вы уверены, что хотите сбросить все данные пользователей?')) {
-      localStorage.removeItem('crm-users')
-      resetUsers(initialUsers)
+      localStorage.removeItem('crm-users');
+      resetUsers(initialUsers);
     }
-  }, [resetUsers])
+  }, [resetUsers]);
 
   return (
     <div className="space-y-6">
@@ -118,16 +133,13 @@ export function PeopleHubPage(): JSX.Element {
           onViewModeChange={setViewMode}
           onReset={handleResetData}
           onAdd={() => {
-            setEditUser(null)
-            setIsAddModalOpen(true)
+            setEditUser(null);
+            setIsAddModalOpen(true);
           }}
         />
       </div>
 
-      <PeopleSmartSearch
-        people={toPersonUsers(state.users)}
-        onSearch={handleSmartSearch}
-      />
+      <PeopleSmartSearch people={toPersonUsers(state.users)} onSearch={handleSmartSearch} />
 
       <PeopleListContainer
         people={people}
@@ -150,8 +162,8 @@ export function PeopleHubPage(): JSX.Element {
       <AddUserModal
         isOpen={state.isAddModalOpen}
         onClose={() => {
-          setIsAddModalOpen(false)
-          setEditUser(null)
+          setIsAddModalOpen(false);
+          setEditUser(null);
         }}
         onAddUser={handleAddUser}
         mode={state.editUser ? 'edit' : 'add'}
@@ -159,6 +171,5 @@ export function PeopleHubPage(): JSX.Element {
         onSaveEdit={handleSaveEdit}
       />
     </div>
-  )
+  );
 }
-

@@ -1,9 +1,17 @@
-import type { Person } from "@/types/person";
-import { PersonCard } from "./PersonCard";
+import type { Person } from '@/types/person';
+import { PersonCard } from './PersonCard';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { useRef } from "react";
+import { useRef } from 'react';
 
-export function PeopleGrid({ people, onEdit, onDelete }: { people: Person[]; onEdit?: (id: string) => void; onDelete?: (id: string) => void }) {
+export function PeopleGrid({
+  people,
+  onEdit,
+  onDelete,
+}: {
+  people: Person[];
+  onEdit?: (id: string) => void;
+  onDelete?: (id: string) => void;
+}) {
   const parentRef = useRef<HTMLDivElement>(null);
 
   const virtualizer = useVirtualizer({
@@ -16,7 +24,7 @@ export function PeopleGrid({ people, onEdit, onDelete }: { people: Person[]; onE
   return (
     <div ref={parentRef} className="h-[70vh] overflow-y-auto">
       <div className="relative w-full" style={{ height: `${virtualizer.getTotalSize()}px` }}>
-        {virtualizer.getVirtualItems().map(virtualRow => {
+        {virtualizer.getVirtualItems().map((virtualRow) => {
           const startIndex = virtualRow.index * 3;
           const endIndex = Math.min(startIndex + 3, people.length);
           const rowPeople = people.slice(startIndex, endIndex);
@@ -28,10 +36,10 @@ export function PeopleGrid({ people, onEdit, onDelete }: { people: Person[]; onE
               style={{
                 height: `${virtualRow.size}px`,
                 transform: `translateY(${virtualRow.start}px)`,
-                padding: '0 8px'
+                padding: '0 8px',
               }}
             >
-              {rowPeople.map(person => (
+              {rowPeople.map((person) => (
                 <PersonCard key={person.id} person={person} onEdit={onEdit} onDelete={onDelete} />
               ))}
             </div>
@@ -41,5 +49,3 @@ export function PeopleGrid({ people, onEdit, onDelete }: { people: Person[]; onE
     </div>
   );
 }
-
-

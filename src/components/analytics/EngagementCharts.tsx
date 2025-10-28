@@ -1,10 +1,10 @@
 // @ts-ignore
 import React from 'react';
-import { ResponsivePie } from '@nivo/pie'
-import { ResponsiveLine } from '@nivo/line'
+import { ResponsivePie } from '@nivo/pie';
+import { ResponsiveLine } from '@nivo/line';
 
-type PieDatum = { id: string; label?: string; value: number; color?: string }
-type LineSerie = { id: string; data: { x: string | number | Date; y: number }[] }
+type PieDatum = { id: string; label?: string; value: number; color?: string };
+type LineSerie = { id: string; data: { x: string | number | Date; y: number }[] };
 
 /**
  * Pie chart showing engagement distribution.
@@ -33,16 +33,16 @@ export function EngagementPie({ data }: { data: PieDatum[] }) {
             translateY: 56,
             itemWidth: 100,
             itemHeight: 18,
-            symbolShape: 'circle'
-          }
+            symbolShape: 'circle',
+          },
         ]}
         theme={{
           text: { fill: 'var(--foreground, #e5e7eb)' },
-          grid: { line: { stroke: 'rgba(255,255,255,0.1)', strokeDasharray: '3 3' } }
+          grid: { line: { stroke: 'rgba(255,255,255,0.1)', strokeDasharray: '3 3' } },
         }}
       />
     </div>
-  )
+  );
 }
 
 /**
@@ -73,11 +73,9 @@ export function EngagementFunnelLine({ data }: { data: LineSerie[] }) {
           text: { fill: 'var(--foreground, #e5e7eb)' },
           grid: { line: { stroke: 'rgba(255, 255, 255, 0.1)', strokeDasharray: '3 3' } },
           crosshair: { line: { stroke: 'rgba(255,255,255,0.2)', strokeWidth: 1 } },
-          tooltip: { container: { background: 'rgba(0,0,0,0.8)', color: '#fff', borderRadius: 8 } }
+          tooltip: { container: { background: 'rgba(0,0,0,0.8)', color: '#fff', borderRadius: 8 } },
         }}
       />
     </div>
-  )
+  );
 }
-
-

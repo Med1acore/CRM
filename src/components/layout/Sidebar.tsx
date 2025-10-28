@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard,
   Users,
@@ -13,10 +13,10 @@ import {
   CheckSquare,
   Calendar as CalendarIcon,
   Brain,
-} from 'lucide-react'
-import { useAuth } from '../../contexts/AuthContext'
-import { useTheme } from '../../components/ThemeProvider'
-import { RadioPlayer } from '../RadioPlayer'
+} from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../components/ThemeProvider';
+import { RadioPlayer } from '../RadioPlayer';
 
 const navigation = [
   { name: 'Панель управления', href: '/', icon: LayoutDashboard },
@@ -27,31 +27,33 @@ const navigation = [
   { name: 'Коммуникации', href: '/communications', icon: MessageSquare },
   { name: 'Аналитика', href: '/analytics', icon: BarChart3 },
   { name: 'Улучшить проповедь', href: '/sermon-analyzer', icon: Brain },
-]
+];
 
 interface SidebarProps {
-  onClose?: () => void
+  onClose?: () => void;
 }
 
 export default function Sidebar({ onClose }: SidebarProps) {
-  const { user, signOut } = useAuth()
-  const { theme, setTheme } = useTheme()
+  const { user, signOut } = useAuth();
+  const { theme, setTheme } = useTheme();
 
   return (
     <div className="flex flex-col w-64 h-full backdrop-blur-sm border-r shadow-lg bg-white/70 border-gray-200 dark:bg-black/20 dark:border-white/10">
       {/* Header - only visible on desktop */}
       <div className="hidden lg:flex items-center justify-between h-20 px-4 backdrop-blur-sm border-b bg-white/70 border-gray-200 dark:bg-black/20 dark:border-white/10">
         <div className="flex items-center space-x-3">
-          <img 
-            src="./logo.webp" 
-            alt="Father's Home Logo" 
+          <img
+            src="./logo.webp"
+            alt="Father's Home Logo"
             className="h-8 w-8 rounded-full object-cover"
           />
           <h1 className="text-sm font-bold text-gray-900 dark:text-white font-clash leading-tight">
-            Father's<br />Home
+            Father's
+            <br />
+            Home
           </h1>
         </div>
-        
+
         <div className="flex items-center space-x-2">
           <button className="p-2 text-gray-600 hover:text-gray-900 dark:text-white/70 dark:hover:text-white transition-colors">
             <Bell className="h-5 w-5" />
@@ -60,11 +62,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             className="p-2 text-gray-600 hover:text-gray-900 dark:text-white/70 dark:hover:text-white transition-colors"
           >
-            {theme === 'dark' ? (
-              <Moon className="h-5 w-5" />
-            ) : (
-              <Sun className="h-5 w-5" />
-            )}
+            {theme === 'dark' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
           </button>
         </div>
       </div>
@@ -72,14 +70,16 @@ export default function Sidebar({ onClose }: SidebarProps) {
       {/* Mobile header with close button */}
       <div className="lg:hidden flex items-center justify-between h-16 px-4 backdrop-blur-sm border-b bg-white/70 border-gray-200 dark:bg-black/20 dark:border-white/10">
         <div className="flex items-center space-x-3">
-          <img 
-            src="./logo.webp" 
-            alt="Father's Home Logo" 
+          <img
+            src="./logo.webp"
+            alt="Father's Home Logo"
             className="h-8 w-8 rounded-full object-cover"
           />
-          <h1 className="text-lg font-bold text-gray-900 dark:text-white truncate font-clash">Father's Home</h1>
+          <h1 className="text-lg font-bold text-gray-900 dark:text-white truncate font-clash">
+            Father's Home
+          </h1>
         </div>
-        
+
         <button
           onClick={onClose}
           className="p-1 rounded-md text-gray-700 hover:bg-gray-100 dark:text-white hover:dark:bg-white/20 transition-colors"
@@ -87,7 +87,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
           <X className="h-5 w-5" />
         </button>
       </div>
-      
+
       <nav className="flex-1 px-4 py-6 space-y-2">
         {navigation.map((item) => (
           <NavLink
@@ -136,12 +136,15 @@ export default function Sidebar({ onClose }: SidebarProps) {
               {user?.user_metadata?.full_name || 'Пользователь'}
             </p>
             <p className="text-xs text-gray-500 dark:text-white/60">
-              {user?.role === 'admin' ? 'Администратор' : 
-               user?.role === 'leader' ? 'Лидер' : 'Участник'}
+              {user?.role === 'admin'
+                ? 'Администратор'
+                : user?.role === 'leader'
+                  ? 'Лидер'
+                  : 'Участник'}
             </p>
           </div>
         </div>
-        
+
         <button
           onClick={() => signOut()}
           className="flex items-center w-full px-4 py-2 mt-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white rounded-lg transition-colors"
@@ -151,5 +154,5 @@ export default function Sidebar({ onClose }: SidebarProps) {
         </button>
       </div>
     </div>
-  )
+  );
 }

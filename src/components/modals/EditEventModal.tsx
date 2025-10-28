@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   X,
   Calendar,
@@ -10,8 +10,8 @@ import {
   Star,
   Save,
   Trash2,
-  AlertCircle
-} from 'lucide-react'
+  AlertCircle,
+} from 'lucide-react';
 
 interface SmartEvent {
   id: string;
@@ -52,7 +52,7 @@ export function EditEventModal({ isOpen, onClose, event, onSave, onDelete }: Edi
     priority: 'medium',
     category: 'task',
     aiGenerated: false,
-    smartSuggestions: []
+    smartSuggestions: [],
   });
 
   const [attendeeInput, setAttendeeInput] = useState('');
@@ -63,29 +63,33 @@ export function EditEventModal({ isOpen, onClose, event, onSave, onDelete }: Edi
       setFormData({
         ...event,
         start: typeof event.start === 'string' ? event.start : event.start.toISOString(),
-        end: event.end ? (typeof event.end === 'string' ? event.end : event.end.toISOString()) : undefined
+        end: event.end
+          ? typeof event.end === 'string'
+            ? event.end
+            : event.end.toISOString()
+          : undefined,
       });
     }
   }, [event]);
 
   const handleInputChange = (field: keyof SmartEvent, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleAddAttendee = () => {
     if (attendeeInput.trim() && !formData.attendees?.includes(attendeeInput.trim())) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        attendees: [...(prev.attendees || []), attendeeInput.trim()]
+        attendees: [...(prev.attendees || []), attendeeInput.trim()],
       }));
       setAttendeeInput('');
     }
   };
 
   const handleRemoveAttendee = (index: number) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      attendees: prev.attendees?.filter((_, i) => i !== index) || []
+      attendees: prev.attendees?.filter((_, i) => i !== index) || [],
     }));
   };
 
@@ -98,7 +102,7 @@ export function EditEventModal({ isOpen, onClose, event, onSave, onDelete }: Edi
     const eventToSave = {
       ...formData,
       start: new Date(formData.start),
-      end: formData.end ? new Date(formData.end) : undefined
+      end: formData.end ? new Date(formData.end) : undefined,
     };
 
     onSave(eventToSave);
@@ -179,11 +183,18 @@ export function EditEventModal({ isOpen, onClose, event, onSave, onDelete }: Edi
                 </label>
                 <input
                   type={formData.allDay ? 'date' : 'datetime-local'}
-                  value={formData.allDay ? 
-                    (typeof formData.start === 'string' ? formData.start.split('T')[0] : new Date(formData.start).toISOString().split('T')[0]) :
-                    (typeof formData.start === 'string' ? formData.start.slice(0, 16) : new Date(formData.start).toISOString().slice(0, 16))
+                  value={
+                    formData.allDay
+                      ? typeof formData.start === 'string'
+                        ? formData.start.split('T')[0]
+                        : new Date(formData.start).toISOString().split('T')[0]
+                      : typeof formData.start === 'string'
+                        ? formData.start.slice(0, 16)
+                        : new Date(formData.start).toISOString().slice(0, 16)
                   }
-                  onChange={(e) => handleInputChange('start', formData.allDay ? e.target.value : e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange('start', formData.allDay ? e.target.value : e.target.value)
+                  }
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 />
               </div>
@@ -194,12 +205,20 @@ export function EditEventModal({ isOpen, onClose, event, onSave, onDelete }: Edi
                 </label>
                 <input
                   type={formData.allDay ? 'date' : 'datetime-local'}
-                  value={formData.end ? (
-                    formData.allDay ? 
-                      (typeof formData.end === 'string' ? formData.end.split('T')[0] : new Date(formData.end).toISOString().split('T')[0]) :
-                      (typeof formData.end === 'string' ? formData.end.slice(0, 16) : new Date(formData.end).toISOString().slice(0, 16))
-                  ) : ''}
-                  onChange={(e) => handleInputChange('end', formData.allDay ? e.target.value : e.target.value)}
+                  value={
+                    formData.end
+                      ? formData.allDay
+                        ? typeof formData.end === 'string'
+                          ? formData.end.split('T')[0]
+                          : new Date(formData.end).toISOString().split('T')[0]
+                        : typeof formData.end === 'string'
+                          ? formData.end.slice(0, 16)
+                          : new Date(formData.end).toISOString().slice(0, 16)
+                      : ''
+                  }
+                  onChange={(e) =>
+                    handleInputChange('end', formData.allDay ? e.target.value : e.target.value)
+                  }
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 />
               </div>
@@ -214,7 +233,10 @@ export function EditEventModal({ isOpen, onClose, event, onSave, onDelete }: Edi
                 onChange={(e) => handleInputChange('allDay', e.target.checked)}
                 className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
               />
-              <label htmlFor="allDay" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label
+                htmlFor="allDay"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Весь день
               </label>
             </div>
