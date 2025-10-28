@@ -186,6 +186,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.removeItem('crm-local-user');
       setUser(null);
       setSession(null);
+      // Явно уводим на страницу логина в локальном режиме
+      try {
+        window.location.assign('/login');
+      } catch (_) {
+        // fallback без навигации
+      }
       return;
     }
     if (!supabase) return;
