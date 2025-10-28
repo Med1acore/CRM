@@ -1,0 +1,42 @@
+services:
+  db:
+    image: public.ecr.aws/supabase/postgres:17.6.1.029
+    container_name: supabase_db
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5432:5432"
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  api:
+    image: public.ecr.aws/supabase/postgrest:v12.0.2
+    container_name: supabase_api
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - "127.0.0.1:3001:3000"
+    environment:
+      PGRST_DB_URI: postgres://postgres:postgres@db:5432/postgres
+      PGRST_DB_SCHEMAS: public
+      PGRST_DB_ANON_ROLE: anon
+      PGRST_JWT_SECRET: super-secret-jwt-token
+
+  studio:
+    image: public.ecr.aws/supabase/studio:latest
+    container_name: supabase_studio
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "127.0.0.1:3002:3000"
+    environment:
+      SUPABASE_URL: http://127.0.0.1:3001
+      SUPABASE_SERVICE_KEY: super-secret-jwt-token
+
+volumes:
+  db_data:
