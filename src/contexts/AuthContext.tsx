@@ -27,14 +27,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (stored) {
         setUser(JSON.parse(stored));
       } else {
-        const devUser: AuthUser = {
-          id: 'dev-user',
-          email: 'dev@local',
-          role: 'admin',
-          user_metadata: { full_name: 'Developer' },
-        };
-        localStorage.setItem('crm-local-user', JSON.stringify(devUser));
-        setUser(devUser);
+        // Не авто-логиним. Остаёмся на странице логина до явного signIn
+        setUser(null);
       }
       setSession(null);
       setLoading(false);
@@ -118,6 +112,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem('crm-local-user', JSON.stringify(devUser));
       setUser(devUser);
       setSession(null);
+      try {
+        window.location.assign('/');
+      } catch (_) {}
       return;
     }
     if (!supabase) throw new Error('Auth service unavailable');
