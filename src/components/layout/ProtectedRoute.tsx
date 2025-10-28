@@ -7,6 +7,8 @@ interface ProtectedRouteProps {
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { user, loading } = useAuth();
+  const isLocalAuth = (import.meta as ImportMeta & { env: Record<string, string | undefined> }).env
+    .VITE_AUTH_MODE === 'local';
 
   if (loading) {
     return (
@@ -16,7 +18,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     );
   }
 
-  if (!user) {
+  if (!user && !isLocalAuth) {
     return <Navigate to="/login" replace />;
   }
 

@@ -18,8 +18,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const isLocalAuth = (import.meta as ImportMeta & { env: Record<string, string | undefined> }).env
+    .VITE_AUTH_MODE === 'local';
 
   useEffect(() => {
+    if (isLocalAuth) {
+      const stored = localStorage.getItem('crm-local-user');
+      if (stored) {
+        setUser(JSON.parse(stored));
+      } else {
+        const devUser: AuthUser = {
+          id: 'dev-user',
+          email: 'dev@local',
+          role: 'admin',
+          user_metadata: { full_name: 'Developer' },
+        };
+        localStorage.setItem('crm-local-user', JSON.stringify(devUser));
+        setUser(devUser);
+      }
+      setSession(null);
+      setLoading(false);
+      return;
+    }
+
     if (!supabase) {
       console.warn('Supabase client is not initialized. AuthContext will render as logged-out.');
       setLoading(false);
@@ -87,6 +108,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signIn = async (email: string, password: string) => {
+    if (isLocalAuth) {
+      const devUser: AuthUser = {
+        id: 'dev-user',
+        email: email || 'dev@local',
+        role: 'admin',
+        user_metadata: { full_name: 'Developer' },
+      };
+      localStorage.setItem('crm-local-user', JSON.stringify(devUser));
+      setUser(devUser);
+      setSession(null);
+      return;
+    }
     if (!supabase) throw new Error('Auth service unavailable');
 
     setLoading(true);
@@ -113,6 +146,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signUp = async (email: string, password: string, fullName: string) => {
+    if (isLocalAuth) {
+      await signIn(email, password);
+      return;
+    }
     if (!supabase) throw new Error('Auth service unavailable');
 
     setLoading(true);
@@ -145,6 +182,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
+    if (isLocalAuth) {
+      localStorage.removeItem('crm-local-user');
+      setUser(null);
+      setSession(null);
+      return;
+    }
     if (!supabase) return;
 
     setLoading(true);
