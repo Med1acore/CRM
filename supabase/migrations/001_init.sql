@@ -6,9 +6,10 @@ create type role as enum ('leader','admin','owner');
 create table workspaces (
   id uuid primary key default gen_random_uuid(),
   name text not null,
-  created_by uuid references auth.users(id),
+  owner_id uuid references auth.users(id),
   created_at timestamptz default now()
 );
+
 
 create table workspace_members (
   workspace_id uuid references workspaces(id) on delete cascade,
@@ -20,33 +21,36 @@ create table workspace_members (
 
 -- Модули, включая "sermons"
 create table workspace_modules (
+  id uuid primary key default gen_random_uuid(),
   workspace_id uuid references workspaces(id) on delete cascade,
-  module text not null check (module in
-    ('people','groups','calendar','tasks','communications','analytics','sermons')
-  ),
+  module text not null check (module in ('people', 'groups', 'calendar', 'tasks', 'communications', 'analytics', 'sermons')),
   enabled boolean not null default true,
-  primary key (workspace_id, module)
+  created_at timestamptz default now()
 );
 
+
 create table workspace_settings (
-  workspace_id uuid primary key references workspaces(id) on delete cascade,
+  id uuid primary key default gen_random_uuid(),
+  workspace_id uuid references workspaces(id) on delete cascade,
   timezone text default 'Europe/Moscow',
   locale text default 'ru-RU',
-  feature_flags jsonb default '{}'
+  feature_flags jsonb default '{}',
+  created_at timestamptz default now()
 );
+
 
 -- Люди, группы, события, задачи, коммуникации
 create table people (
   id uuid primary key default gen_random_uuid(),
-  workspace_id uuid not null references workspaces(id) on delete cascade,
+  workspace_id uuid references workspaces(id) on delete cascade,
   full_name text not null,
   email text,
   phone text,
-  birth_date date,
-  status text default 'active',         -- active|inactive|guest
-  tags text[] default '{}',
+  status text default 'active',
+  tags text[],
   created_at timestamptz default now()
 );
+
 
 create table groups (
   id uuid primary key default gen_random_uuid(),
@@ -59,6 +63,7 @@ create table groups (
   active boolean default true,
   created_at timestamptz default now()
 );
+
 
 create table group_members (
   group_id uuid references groups(id) on delete cascade,
