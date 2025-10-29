@@ -1,8 +1,8 @@
-project_id = "CRMCHURCH"
+project_id = "local"
 
 [api]
 enabled = true
-port = 55121
+port = 55221
 schemas = ["public", "graphql_public"]
 extra_search_path = ["public", "extensions"]
 max_rows = 1000
@@ -21,7 +21,7 @@ max_client_conn = 100
 
 [db.migrations]
 enabled = true
-schema_paths = []
+schema_paths = ["./migrations"]
 
 [db.seed]
 enabled = true
@@ -32,13 +32,12 @@ enabled = true
 
 [studio]
 enabled = true
-port = 55123
+port = 55223
 api_url = "http://127.0.0.1"
 openai_api_key = "env(OPENAI_API_KEY)"
 
 [inbucket]
-enabled = true
-port = 55124
+enabled = false
 
 [storage]
 enabled = true
@@ -77,5 +76,5 @@ deno_version = 2
 
 [analytics]
 enabled = true
-port = 55127
+port = 55227
 backend = "postgres"
