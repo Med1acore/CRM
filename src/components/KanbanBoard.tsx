@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { DndContext, DragEndEvent, DragStartEvent, PointerSensor, useSensor, useSensors, DragOverlay, closestCorners, MeasuringStrategy } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { supabase } from '@/lib/supabase';
 import { Column } from './Column';
@@ -15,9 +15,14 @@ const COLUMNS: { id: ColumnId; title: string }[] = [
 ];
 
 export function KanbanBoard() {
-  const sensors = useSensors(useSensor(PointerSensor));
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 5 },
+    })
+  );
   const [tasks, setTasks] = useState<Task[]>([]);
   const [errorText, setErrorText] = useState<string | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -26,12 +31,17 @@ export function KanbanBoard() {
         setErrorText('Supabase не инициализирован: проверьте VITE_SUPABASE_URL/ANON_KEY');
         return;
       }
+      const workspace_id = "f233aec4-3b13-4a2b-ae9c-50d9e7b00801";
       const { data, error } = await supabase
         .from('tasks')
         .select('id,title,column,created_at')
+        .eq('workspace_id', workspace_id)
         .order('created_at', { ascending: true });
       if (!mounted) return;
-      if (error) setErrorText(error.message);
+      if (error) {
+        console.error('Supabase error loading tasks:', error);
+        setErrorText(`Ошибка: ${error.message}. Проверьте .env.local (VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY)`);
+      }
       if (!error && data) setTasks(data as Task[]);
     }
     load();
@@ -45,6 +55,13 @@ export function KanbanBoard() {
     for (const t of tasks) map[t.column].push(t);
     return map;
   }, [tasks]);
+
+  const activeTask = useMemo(() => tasks.find((t) => t.id === activeId) || null, [tasks, activeId]);
+
+  const handleDragStart = (event: DragStartEvent) => {
+    const { active } = event;
+    setActiveId(String(active.id));
+  };
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
@@ -65,15 +82,29 @@ export function KanbanBoard() {
     }
     if (!target) return;
 
+    // Temporary diagnostics (to be removed after verification)
+    // eslint-disable-next-line no-console
+    console.log('Dragging task:', taskId, 'Over:', overId, 'Target column:', target);
+
     setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, column: target! } : t)));
     if (supabase) {
       const { error } = await supabase.from('tasks').update({ column: target }).eq('id', taskId);
       if (error) setErrorText(error.message);
     }
+    setActiveId(null);
   };
 
+  const handleDragCancel = () => setActiveId(null);
+
   return (
-    <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCorners}
+      measuring={{ droppable: { strategy: MeasuringStrategy.Always } }}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      onDragCancel={handleDragCancel}
+    >
       {errorText && (
         <div className="mb-3 text-sm text-red-300 bg-red-900/30 border border-red-700 rounded p-3">
           {errorText}
@@ -106,12 +137,19 @@ export function KanbanBoard() {
           >
             <SortableContext items={lists[c.id].map((t) => t.id)} strategy={verticalListSortingStrategy}>
               {lists[c.id].map((t) => (
-                <TaskCard key={t.id} id={t.id} title={t.title} />
+                <TaskCard key={t.id} id={t.id} title={t.title} isActive={activeId === t.id} />
               ))}
             </SortableContext>
           </Column>
         ))}
       </div>
+      <DragOverlay dropAnimation={null} style={{ cursor: 'grabbing' }}>
+        {activeTask ? (
+          <div className="bg-slate-700 rounded-md p-3 text-white shadow-2xl opacity-95" style={{ width: '280px' }}>
+            {activeTask.title}
+          </div>
+        ) : null}
+      </DragOverlay>
     </DndContext>
   );
 }
