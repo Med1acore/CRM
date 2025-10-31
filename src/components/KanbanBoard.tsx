@@ -10,7 +10,7 @@ import {
   closestCorners,
   DragOverlay,
 } from '@dnd-kit/core';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import { supabase } from '@/lib/supabase';
 import { Column } from './Column';
 import { TaskCard } from './TaskCard';
@@ -70,28 +70,48 @@ export function KanbanBoard() {
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
+    setActiveId(null);
     if (!over) return;
+
     const taskId = String(active.id);
     const overId = String(over.id);
+    if (taskId === overId) return;
 
-    let target: ColumnId | null = null;
-    if (overId === 'todo' || overId === 'inprogress' || overId === 'done') target = overId as ColumnId;
-    else {
+    const activeTask = tasks.find((t) => t.id === taskId);
+    if (!activeTask) return;
+
+    let targetColumn: ColumnId | null = null;
+    if (overId === 'todo' || overId === 'inprogress' || overId === 'done') {
+      targetColumn = overId as ColumnId;
+    } else {
       const inTodo = lists.todo.find((t) => t.id === overId);
       const inProg = lists.inprogress.find((t) => t.id === overId);
       const inDone = lists.done.find((t) => t.id === overId);
-      if (inTodo) target = 'todo';
-      else if (inProg) target = 'inprogress';
-      else if (inDone) target = 'done';
+      if (inTodo) targetColumn = 'todo';
+      else if (inProg) targetColumn = 'inprogress';
+      else if (inDone) targetColumn = 'done';
     }
-    if (!target) return;
+    if (!targetColumn) return;
 
-    setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, column: target as ColumnId } : t)));
-    if (supabase) {
-      const { error } = await supabase.from('tasks').update({ column: target }).eq('id', taskId);
-      if (error) setErrorText(error.message);
+    const sourceColumn = activeTask.column;
+
+    if (sourceColumn === targetColumn) {
+      const columnTasks = lists[sourceColumn];
+      const oldIndex = columnTasks.findIndex((t) => t.id === taskId);
+      const newIndex = columnTasks.findIndex((t) => t.id === overId);
+      if (oldIndex === -1 || newIndex === -1) return;
+      const reordered = arrayMove(columnTasks, oldIndex, newIndex);
+      setTasks((prev) => [
+        ...prev.filter((t) => t.column !== sourceColumn),
+        ...reordered,
+      ]);
+    } else {
+      setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, column: targetColumn as ColumnId } : t)));
+      if (supabase) {
+        const { error } = await supabase.from('tasks').update({ column: targetColumn }).eq('id', taskId);
+        if (error) setErrorText(error.message);
+      }
     }
-    setActiveId(null);
   };
 
   return (
