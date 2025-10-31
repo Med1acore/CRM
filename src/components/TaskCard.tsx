@@ -2,8 +2,12 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
 export function TaskCard({ id, title }: { id: string; title: string }) {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
-  const style = { transform: CSS.Transform.toString(transform), transition } as React.CSSProperties;
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0 : 1,
+  } as React.CSSProperties;
   return (
     <div
       ref={setNodeRef}

@@ -19,7 +19,7 @@ export function Column({ id, title, children, onAddTask }: PropsWithChildren<Col
   return (
     <div
       ref={setNodeRef}
-      className={`bg-slate-800 rounded-lg p-3 w-80 flex-shrink-0 border transition-colors ${
+      className={`bg-slate-800 rounded-lg p-3 w-80 flex-shrink-0 border transition-colors min-h-[200px] ${
         isOver ? 'border-blue-400' : 'border-transparent'
       }`}
     >
